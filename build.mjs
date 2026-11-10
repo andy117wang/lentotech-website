@@ -65,7 +65,7 @@ for(const item of await readdir(dist,{withFileTypes:true})){
   const theme=content.site?.theme==='teal'?'teal':'navy';
   html=html.replace('<html lang="en">','<html lang="en" data-site-theme="'+theme+'">');
   if(!html.includes('site-refresh.css')&&!item.name.startsWith('manage'))html=html.replace('</head>','<link rel="stylesheet" href="site-refresh.css"><script defer src="journey.js"></script></head>');
-  if(!item.name.startsWith('manage'))html=html.replace('</head>','<script defer src="action-icons.js"></script></head>');
+  if(!item.name.startsWith('manage'))html=html.replace('</head>','<link rel="stylesheet" href="assistant-widget.css"><script defer src="assistant-widget.js"></script><script defer src="action-icons.js"></script></head>');
   for(const asset of new Set([...html.matchAll(/(?:href|src)="([a-z0-9-]+\.(?:css|js))"/g)].map(x=>x[1]))){
     const version=await readFile(join(root,asset)).then(bytes=>createHash('sha256').update(bytes).digest('hex').slice(0,12)).catch(()=>null);
     if(version)html=html.replaceAll('="'+asset+'"','="'+asset+'?v='+version+'"');

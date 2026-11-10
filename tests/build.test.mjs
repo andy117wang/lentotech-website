@@ -23,3 +23,11 @@ test('publishes product detail and removes offline legacy products from catalog 
   const catalog=await readFile(join(dir,'dist/products.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-item-123.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8'),sitemap=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
   assert.match(catalog,/Sample &amp; Co/);assert.doesNotMatch(catalog,/Agomelatine/);assert.match(detail,/Grade A/);assert.match(detail,/contact\?product=Sample%20%26%20Co/);assert.doesNotMatch(home,/href="\/product-agomelatine"/);assert.doesNotMatch(sitemap,/product-agomelatine/);await assert.rejects(access(join(dir,'dist/product-agomelatine.html')));
 });
+test('legacy product address uses current managed data and unified inquiry',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'lento-legacy-'));
+  for(const f of ['build.mjs','index.html','news.html','products.html','services.html','manage.html','sitemap.xml','product-agomelatine.html'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  await writeFile(join(dir,'content.json'),JSON.stringify({products:[{id:'product-1',name:'Updated product',cas:'123-45-6',alias:'Updated alias',detail:'product-agomelatine.html',specification:'Verified grade'}],news:[]}));
+  await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
+  const detail=await readFile(join(dir,'dist/product-agomelatine.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8');
+  assert.match(detail,/Updated product/);assert.match(detail,/Updated alias/);assert.match(detail,/Verified grade/);assert.match(detail,/contact\?product=Updated%20product/);assert.match(home,/Updated product/);
+});

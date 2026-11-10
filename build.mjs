@@ -1,0 +1,32 @@
+import {mkdir,copyFile,readFile,writeFile,readdir,cp} from 'node:fs/promises';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const root=fileURLToPath(new URL('.',import.meta.url)),dist=join(root,'dist');
+await mkdir(dist,{recursive:true});
+for(const item of await readdir(root,{withFileTypes:true})){
+  if(item.isFile()&&/\.(html|css|js|json|jpe?g|png|svg|xml|txt)$/i.test(item.name)&&!['package-lock.json'].includes(item.name))await copyFile(join(root,item.name),join(dist,item.name));
+  if(item.isDirectory()&&item.name==='uploads')await cp(join(root,'uploads'),join(dist,'uploads'),{recursive:true});
+}
+const content=JSON.parse(await readFile(join(root,'content.json'),'utf8'));
+const esc=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const url=value=>{try{const u=new URL(value,'https://www.lentotech.com/');return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}};
+const articles=(content.news||[]).slice(0,20).filter(x=>x.title).map(x=>{const link=x.url?url(x.url):'';return `<article><div class="story-meta">${esc([x.category,x.date].filter(Boolean).join(' · '))}</div><h3>${link?`<a href="${esc(link)}">${esc(x.title)}</a>`:esc(x.title)}</h3><p>${esc(x.summary)}</p></article>`}).join('');
+const products=(content.products||[]).filter(x=>x.name).map(x=>{const image=x.image?url(x.image):'';const search=[x.name,x.cas,x.description,x.category].join(' ').toLocaleLowerCase();return `<article class="catalog-card" data-kind="${esc(x.category||'Other')}" data-search="${esc(search)}">${image?`<img src="${esc(image)}" alt="${esc(x.name)}" loading="lazy" style="width:100%;max-height:180px;object-fit:cover">`:''}<span class="kind">${esc(x.category||'Product')}</span><h2>${esc(x.name)}</h2>${x.cas?`<p class="cas">CAS ${esc(x.cas)}</p>`:''}<p>${esc(x.description)}</p><a class="inquire" href="mailto:info@lentotech.com?subject=${encodeURIComponent('Product inquiry: '+x.name)}">Request information ↗</a></article>`}).join('');
+for(const file of ['index.html','news.html','products.html']){
+  let html=await readFile(join(dist,file),'utf8');
+  html=html.replace('<script defer src="content.js"></script>','');
+  if(file!=='products.html')html=html.replace('<div class="news-list">','<div class="news-list">'+articles);
+  if(file==='products.html')html=html.replace('<div class="catalog-grid">','<div class="catalog-grid">'+products);
+  if(file==='index.html'){
+    html=html.replace(/<p data-managed-company>.*?<\/p>/,`<p data-managed-company>${esc(content.company?.description)}</p>`);
+    const link=content.company?.file?url(content.company.file):'';
+    if(link)html=html.replace('<a data-managed-company-file hidden>','<a data-managed-company-file href="'+esc(link)+'">');
+  }
+  await writeFile(join(dist,file),html);
+}
+console.log('Built static site with searchable published content.');
+const adminPath=join(dist,'manage.html');
+const admin=await readFile(adminPath,'utf8');
+await writeFile(adminPath,admin.replace('</head>',`<meta name="content-branch" content="${esc(process.env.CF_PAGES_BRANCH||'main')}"></head>`));
+if(process.env.CF_PAGES_BRANCH&&process.env.CF_PAGES_BRANCH!=='main')await writeFile(join(dist,'_headers'),'/*\n  X-Robots-Tag: noindex, nofollow\n');

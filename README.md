@@ -1,5 +1,25 @@
 # LentoTech website
 
+## Unified publishing and feedback workflow (staging)
+
+`manage.html` is the shared operating screen. GitHub stores public content and public uploads with version history. Cloudflare Pages Functions and a private D1 database store customer inquiries; inquiries are never committed to the public GitHub repository. An administrator enters a fine-grained GitHub token restricted to this repository with Contents read/write permission; the feedback endpoint verifies that token against GitHub and checks repository push permission on every administrative request. Verify this permission check with the actual token before use. The token is held only in page memory, so page refresh or closure disconnects the manager.
+
+Deployment requires a Cloudflare Pages project connected to this repository, build command `node build.mjs`, output directory `dist`, and the Functions directory at the repository root. The build renders managed news and products into HTML so they are available without client-side JavaScript. `dist/` is generated and is not committed. Run `node --test tests/*.test.mjs` before deploying. Bind a D1 database as `FEEDBACK_DB`, apply `schema.sql`, create a Turnstile widget for the actual hostnames, and set `TURNSTILE_SITE_KEY` and the secret `TURNSTILE_SECRET` as Pages environment variables. Configure both production and preview deliberately; do not put secrets in the repository. Test a real submission, inbox read and status change in a private staging environment before routing the production domain.
+
+The existing domain currently uses GitHub Pages. Pages Functions do not run there: until the domain is routed to the configured Cloudflare Pages project, the form falls back to composing an email and the inbox is unavailable. Routing or DNS changes should happen only after a complete staging test. The form uses Turnstile server verification; it fails closed if storage or verification is not configured. The inbox displays the newest 200 inquiries, does not send email notifications, and does not automatically delete records. Set an operational retention and backup policy before accepting production data. Protect the GitHub account using two-factor authentication, keep tokens short-lived, and limit who may use the management screen.
+
+New content is search-readable in the built HTML, but ranking and indexing are not guaranteed. Language switching currently occurs client-side and is not a set of independently indexable translations; hreflang declarations were removed until separate translated pages with their own canonical URLs exist. Review actual ownership and authorization before publishing the Shanyuan partner information. Existing catalog entries are still maintained in `products.html`; the editor manages additional entries only.
+
+## Content management (draft, requires deployment and GitHub token)
+
+`manage.html` edits `content.json` through the GitHub Contents API. Create a fine-grained token restricted to this repository with Contents read/write permission; enter it directly in the management page. The token remains in page memory only. Manage this token like a password, set an expiry, and revoke it if exposed. The management page is public but publishing requires a valid token. Protect the GitHub account with two-factor authentication.
+
+The editor can add news and products, update the company introduction, and upload JPG, PNG, WebP and PDF files (up to 5 MB each). Uploads and saved content are public. It does not edit the 72 legacy product cards. Review factual claims, rights and documents before publishing. Uploaded files receive a generated link; paste it into a product image or company profile field and save the content. The upload and content save are separate commits.
+
+GitHub Pages builds take time. An editing conflict requires reconnecting and re-entering unsaved changes. A successful API response confirms the commit, not that the Pages build has succeeded; check Actions and the public site. The browser needs connectivity to api.github.com. GitHub's authorization, quota and Pages settings determine whether saving and deployment work.
+
+Without the configured Cloudflare service, the inquiry form prepares an email in the visitor's email application. It never sends email automatically.
+
 Static GitHub Pages site for www.lentotech.com. No paid service or build dependency.
 
 ## Design and content maintenance

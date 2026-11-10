@@ -1,5 +1,6 @@
 (()=>{
   const form=document.querySelector('#inquiry-form');if(!form)return;
+  const product=new URLSearchParams(location.search).get('product');if(product){const requirement=form.querySelector('[name=requirement]');if(requirement)requirement.value='Product: '+product+'\n';}
   const note=document.querySelector('#form-note'),button=form.querySelector('button[type=submit]');let enabled=false,widget;
   const say=text=>{note.textContent=text};
   fetch('/api/feedback?config=1',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(config=>{

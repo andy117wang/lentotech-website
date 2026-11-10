@@ -29,4 +29,17 @@ console.log('Built static site with searchable published content.');
 const adminPath=join(dist,'manage.html');
 const admin=await readFile(adminPath,'utf8');
 await writeFile(adminPath,admin.replace('</head>',`<meta name="content-branch" content="${esc(process.env.CF_PAGES_BRANCH||'main')}"></head>`));
+// Pages serves clean URLs and redirects *.html. Point links and canonical metadata
+// at the final URLs so crawlers and visitors do not first encounter redirects.
+for(const item of await readdir(dist,{withFileTypes:true})){
+  if(!item.isFile()||!item.name.endsWith('.html'))continue;
+  const file=join(dist,item.name);let html=await readFile(file,'utf8');
+  html=html.replace(/href="index\.html(?=["#?])/g,'href="/');
+  html=html.replace(/href="([a-z0-9-]+)\.html(?=["#?])/g,'href="/$1');
+  html=html.replace(/(https:\/\/www\.lentotech\.com\/[a-z0-9-]+)\.html(?=["?#])/g,'$1');
+  await writeFile(file,html);
+}
+const sitemapPath=join(dist,'sitemap.xml');
+const sitemap=await readFile(sitemapPath,'utf8');
+await writeFile(sitemapPath,sitemap.replace(/(https:\/\/www\.lentotech\.com\/[a-z0-9-]+)\.html(?=<)/g,'$1'));
 if(process.env.CF_PAGES_BRANCH&&process.env.CF_PAGES_BRANCH!=='main')await writeFile(join(dist,'_headers'),'/*\n  X-Robots-Tag: noindex, nofollow\n');

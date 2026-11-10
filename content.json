@@ -1,5 +1,8 @@
 {
-  "company": {"description": "LentoTech connects international demand with product sourcing, cross-border trade and specialist manufacturing partners.", "file": ""},
+  "company": {
+    "description": "LentoTech connects international demand with product sourcing, cross-border trade and specialist manufacturing partners.",
+    "file": ""
+  },
   "news": [],
   "products": []
 }

@@ -3,7 +3,32 @@
     "description": "LentoTech connects international demand with product sourcing, cross-border trade and specialist manufacturing partners.",
     "file": ""
   },
-  "news": [],
+  "news": [
+    {
+      "id": "editorial-fda-insulin",
+      "title": "FDA lists a once-weekly insulin approval for pediatric type 2 diabetes",
+      "date": "2026-10-23",
+      "category": "Regulatory · FDA",
+      "summary": "The FDA's notable approvals list records its decision for Awiqli on October 23.",
+      "url": "https://www.fda.gov/drugs/news-events-human-drugs/notable-approvals-drugs"
+    },
+    {
+      "id": "editorial-ema-october",
+      "title": "EMA committee recommends six medicines for approval",
+      "date": "2026-10-15",
+      "category": "Regulatory · EMA",
+      "summary": "The October CHMP meeting included positive opinions for medicines across several therapeutic areas. Recommendations are subject to a European Commission decision.",
+      "url": "https://www.ema.europa.eu/en/news/meeting-highlights-committee-medicinal-products-human-use-chmp-12-15-october-2026"
+    },
+    {
+      "id": "editorial-cdmo-guide",
+      "title": "A practical starting point for API manufacturing and CDMO selection",
+      "date": "",
+      "category": "Technical insight · Manufacturing",
+      "summary": "Questions to use when discussing process knowledge, quality systems and technology transfer with potential partners.",
+      "url": "/cdmo-guide"
+    }
+  ],
   "products": [
     {
       "id": "product-1",

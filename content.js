@@ -13,8 +13,9 @@
     }
     const grid=document.querySelector('.catalog-grid');
     if(grid&&Array.isArray(data.products))for(const item of data.products){
-      if(!item.name)continue;const card=el('article','','catalog-card');card.dataset.kind=item.category||'Other';card.dataset.search=[item.name,item.cas,item.description,item.category].join(' ').toLocaleLowerCase();
-      card.append(el('span',item.category||'Product','kind'),el('h2',item.name));if(item.cas)card.append(el('p','CAS '+item.cas,'cas'));if(item.description)card.append(el('p',item.description));
+      if(!item.name)continue;const card=el('article','','catalog-card');if(/^product-\d+$/.test(item.id||''))card.id=item.id;card.dataset.kind=item.category||'Other';card.dataset.search=[item.name,item.alias,item.cas,item.description,item.category,item.search].join(' ').toLocaleLowerCase();
+      const heading=el('h2');if(/^product-[a-z0-9-]+\.html$/.test(item.detail||'')){const link=el('a',item.name);link.href=item.detail;heading.append(link)}else heading.textContent=item.name;
+      card.append(el('span',item.category||'Product','kind'),heading);if(item.alias)card.append(el('p',item.alias,'other-name'));if(item.cas)card.append(el('p','CAS '+item.cas,'cas'));if(item.description)card.append(el('p',item.description));
       const image=safeUrl(item.image);if(image){const img=el('img');img.src=image;img.alt=item.name;img.loading='lazy';img.style.cssText='width:100%;max-height:180px;object-fit:cover';card.prepend(img)}
       const a=el('a','Request information ↗','inquire');a.href='mailto:info@lentotech.com?subject='+encodeURIComponent('Product inquiry: '+item.name);card.append(a);grid.prepend(card)
     }

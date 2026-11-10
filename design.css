@@ -184,3 +184,4 @@ footer>span:last-child{width:100%}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}
 }
 
+.brand-mark{background:transparent url('favicon.svg') center/contain no-repeat!important;font-size:0!important;border:0!important}

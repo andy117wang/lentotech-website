@@ -187,3 +187,9 @@ footer>span:last-child{width:100%}
 .brand-mark{background:transparent url('favicon.svg') center/contain no-repeat!important;font-size:0!important;border:0!important}
 
 .editorial-intro .hero-trust{font-size:13px;line-height:1.6;color:#315f60;margin-top:20px}.catalog-controls label[hidden]{display:none}
+/* Restrained clinical palette and readable system typography. */
+:root{--ink:#183044;--muted:#526675;--accent:#236b70;--accent-dark:#17565b;--soft:#f1f5f5;--line:#dbe5e7;--dark:#17364a}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",sans-serif;background:#fff}
+.editorial-hero{background:#edf3f3}.editorial-image img{filter:saturate(.76) contrast(.98)}
+.capability-photo{display:none}
+.managed-modules{padding:72px 5%;background:#f3f7f7;color:var(--ink)}.managed-inner{max-width:1280px;margin:auto}.managed-eyebrow{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:700}.managed-modules h2{font-size:clamp(30px,3vw,42px);font-weight:500}.managed-list{border-top:1px solid var(--line)}.managed-list article{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;padding:26px 0;border-bottom:1px solid var(--line)}.managed-list article:has(img){grid-template-columns:180px 1fr}.managed-list img{width:180px;height:120px;object-fit:cover}.managed-list h3{font-size:21px;margin:0 0 8px}.managed-list p{max-width:760px;color:var(--muted);line-height:1.7}.managed-list a{color:var(--accent);font-weight:600}@media(max-width:600px){.managed-modules{padding:48px 5%}.managed-list article:has(img){grid-template-columns:1fr}.managed-list img{width:100%;height:180px}}

@@ -12,6 +12,8 @@ Product and news content is search-readable in the built HTML, but ranking and i
 
 ## Content management (draft, requires deployment and GitHub token)
 
+The management page can add, edit, remove and reorder extra business areas (rendered on the services page) and capabilities (rendered on the home page). These are additional sections; the pre-existing hard-coded services are not editable in this editor. Module titles and descriptions are currently entered in English and are not automatically translated. Uploaded assets and published content are public. Changes publish through the GitHub build and are not immediate; local drafts remain in the current browser only.
+
 `manage.html` edits `content.json` through the GitHub Contents API. Create a fine-grained token restricted to this repository with Contents read/write permission; enter it directly in the management page. The token remains in page memory only. Manage this token like a password, set an expiry, and revoke it if exposed. The management page is public but publishing requires a valid token. Protect the GitHub account with two-factor authentication.
 
 The editor can manage news and products, update the company introduction, and upload JPG, PNG, WebP, PDF, Markdown and HTML files (up to 5 MB each). Uploads and saved content are public. HTML files are saved as text and served as downloads with script execution disabled; they do not create executable site pages. Markdown files are also served as downloads. Review factual claims, rights and documents before publishing. Uploaded files receive a generated link; paste it into a product image or company profile field and save the content. The upload and content save are separate commits.

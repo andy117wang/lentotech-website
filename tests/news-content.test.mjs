@@ -1,0 +1,5 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import NewsContent from '../news-content.js';
+test('extracts Markdown metadata and text',()=>{const x=NewsContent.parseMarkdown('---\ntitle: New approval\ndate: 2026-11-10\ncategory: Regulatory\n---\n# New approval\n\nA useful update.\n\n## Details\n\nFurther information.','news.md');assert.equal(x.title,'New approval');assert.equal(x.date,'2026-11-10');assert.equal(x.summary,'A useful update.');assert.match(NewsContent.render(x.body),/<h2>Details<\/h2>/)});
+test('only renders safe links and escapes markup',()=>{const h=NewsContent.render('<img src=x onerror=alert(1)>\n\n[bad](javascript:alert)\n\n![safe](https://example.com/a.png)');assert.match(h,/&lt;img/);assert.doesNotMatch(h,/href="javascript:/);assert.match(h,/<img loading="lazy" src="https:\/\/example.com\/a.png"/)});

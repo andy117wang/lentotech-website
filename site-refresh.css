@@ -57,3 +57,12 @@ a:hover .action-icon,a:focus-visible .action-icon,button:hover .action-icon,butt
 .capability-chip{border-radius:5px;box-shadow:0 1px 3px #1b3f6415}.capability-chip:hover,.capability-chip:focus-visible,.capability-chip:active{background:#dce9f6;color:#102f5b}
 .product-spotlight a:hover,.product-spotlight a:focus-visible{box-shadow:0 5px 16px #183f8318;border-color:#799aca}.product-spotlight a:hover strong,.product-spotlight a:focus-visible strong{color:#102e5b}
 @media(prefers-reduced-motion:reduce){a .action-icon,button .action-icon{transition:none}a:hover .action-icon,button:hover .action-icon{transform:none}}
+/* Scientific pictograms share the same line weight and remain secondary to labels. */
+a .action-icon,button .action-icon{width:1.9em;height:1.9em;min-width:1.9em;border-radius:50%;background:#e4edf8;color:#174279}
+.action-icon svg{display:block;width:1.25em;height:1.25em;overflow:visible}
+.capability-chip .action-icon{order:-1;margin:0 .5em 0 0;width:1.8em;height:1.8em;min-width:1.8em;background:#e8f0f9}
+.button .action-icon,.audience-paths a .action-icon{background:rgba(255,255,255,.18);color:#fff}
+.editorial-intro .button .action-icon,.inquiry form .button .action-icon{background:#d8e7f8;color:#15335f}
+a:hover .action-icon,a:focus-visible .action-icon,button:hover .action-icon,button:focus-visible .action-icon{transform:scale(1.08)}
+@media(prefers-reduced-motion:reduce){a:hover .action-icon,button:hover .action-icon{transform:none}}
+.action-icon svg{width:1.45em;height:1.45em}

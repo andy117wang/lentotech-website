@@ -12,7 +12,7 @@
   }).catch(()=>{});
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(!form.reportValidity())return;const data=new FormData(form);
-    const name=String(data.get('name')||'').trim(),email=String(data.get('email')||'').trim(),type=String(data.get('type')||''),message=String(data.get('requirement')||'').trim();
+    const name=String(data.get('name')||'').trim(),email=String(data.get('email')||'').trim(),type=String(data.get('type')||''),stage=String(data.get('stage')||'').trim(),market=String(data.get('market')||'').trim(),requirements=String(data.get('requirement')||'').trim();const message=[stage?'Project stage: '+stage:'',market?'Target markets: '+market:'',requirements].filter(Boolean).join('\n');if(message.length>1200){say('Please shorten the request to 1,200 characters including stage and market.');return}
     if(!enabled){const body=['Name: '+name,'Work email: '+email,'Inquiry type: '+type,'','Requirement:',message].join('\n');location.href='mailto:info@lentotech.com?subject='+encodeURIComponent(type+' inquiry — '+name)+'&body='+encodeURIComponent(body);return}
     const challenge=window.turnstile.getResponse(widget);if(!challenge){say('Please complete the verification before sending.');return}
     button.disabled=true;try{const res=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,type,message,challenge})});if(!res.ok)throw Error();form.reset();window.turnstile.reset(widget);say('Thank you. Your inquiry has been received.');}catch{window.turnstile.reset(widget);say('We could not send your message. Please try again or email info@lentotech.com.')}finally{button.disabled=false}

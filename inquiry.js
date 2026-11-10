@@ -1,6 +1,6 @@
 (()=>{
   const form=document.querySelector('#inquiry-form');if(!form)return;
-  const params=new URLSearchParams(location.search),source=params.get('source')||'';const product=params.get('product'),topic=params.get('topic');const topics=['Chemical synthesis','Bioprocessing','Scale-up','Formulation','Company profile'];if(product||topics.includes(topic)){const requirement=form.querySelector('[name=requirement]');if(requirement)requirement.value=product?'Product: '+product.slice(0,180)+'\n':'Topic: '+topic+'\n';}
+  const params=new URLSearchParams(location.search),source=params.get('source')||'';const product=params.get('product'),topic=params.get('topic'),focus=(params.get('focus')||'').slice(0,100);const topics=['Chemical synthesis','Bioprocessing','Scale-up','Formulation','Company profile'];if(product||topics.includes(topic)){const requirement=form.querySelector('[name=requirement]');if(requirement)requirement.value=product?'Product: '+product.slice(0,180)+'\n':'Topic: '+topic+(focus?' — '+focus:'')+'\n';if(!product&&topic!=='Company profile'){const inquiryType=form.querySelector('[name=type]');if(inquiryType)inquiryType.value='CDMO project'}}
   const note=document.querySelector('#form-note'),button=form.querySelector('button[type=submit]');let enabled=false,widget;
   const say=text=>{note.textContent=text};
   fetch('/api/feedback?config=1',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(config=>{

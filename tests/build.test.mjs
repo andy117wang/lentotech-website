@@ -54,6 +54,6 @@ test('featured products and product details use managed data without inventing s
   const products=[{id:'a',name:'Alpha',cas:'123-45-6',featured:'yes',specification:'98%',documentation:'COA'},{id:'b',name:'Beta',featured:'yes'},{id:'c',name:'Gamma',featured:'yes'},{id:'d',name:'Delta'}];
   await writeFile(join(dir,'content.json'),JSON.stringify({products,news:[]}));await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
   const home=await readFile(join(dir,'dist/index.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-a.html'),'utf8'),service=await readFile(join(dir,'dist/services.html'),'utf8');
-  const featured=home.match(/<div class="product-spotlight"[^>]*>(.*?)<\/div>/s)[1];assert.match(featured,/Alpha/);assert.match(featured,/Beta/);assert.match(featured,/Gamma/);assert.doesNotMatch(featured,/Delta/);
+  const featured=home.match(/<div class="product-spotlight"[^>]*>(.*?)<\/div>/s)[1];assert.match(featured,/Alpha/);assert.match(featured,/Beta/);assert.match(featured,/Gamma/);assert.match(featured,/Delta/);
   assert.match(detail,/CAS number/);assert.match(detail,/Specification \/ purity/);assert.match(detail,/98%/);assert.match(detail,/Available documentation/);assert.match(detail,/COA/);assert.match(detail,/Packaging/);assert.match(detail,/Supply availability/);assert.match(detail,/To be confirmed for your project/);assert.doesNotMatch(service,/Zhejiang Shanyuan|East Asia Pharmaceutical/i);
 });

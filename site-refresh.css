@@ -82,3 +82,4 @@ input::placeholder,textarea::placeholder{color:#566b7d;opacity:1}
 .capacity strong .medical-icon,.service-grid h3 .medical-icon{font-size:.7em}
 /* Brand text should not inherit the square mark's background. */
 .brand .action-label{display:inline;width:auto;height:auto;margin:0;background:transparent;color:inherit;place-items:normal}
+.related-terms{margin:24px 0;padding:14px 16px;background:#f1f5fa;color:#334d69;font-size:14px;line-height:1.7;overflow-wrap:anywhere}.related-terms strong{color:#17365e}

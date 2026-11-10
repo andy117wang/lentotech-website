@@ -40,13 +40,13 @@ test('news article pages are searchable and escape unsafe content',async()=>{
   const page=await readFile(join(dir,'dist/news-item-123.html'),'utf8'),list=await readFile(join(dir,'dist/news.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
   assert.match(page,/A &amp; B/);assert.match(page,/&lt;script&gt;/);assert.doesNotMatch(page,/<script>alert/);assert.doesNotMatch(page,/href="javascript:/);assert.match(list,/href="\/news-item-123"/);assert.match(map,/lentotech.com\/news-item-123/);
 });
-test('summary news directs visitors to a search and inquiry without creating a thin sitemap page',async()=>{
+test('published summary news is discoverable and directs visitors to products and inquiry',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-journey-'));
   for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
   await writeFile(join(dir,'content.json'),JSON.stringify({site:{theme:'teal',heroTitle:'Your <API> partner'},news:[{id:'alpha',title:'Source story',summary:'Summary',url:'https://example.com',related:'A&B'}],products:[]}));
   await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
   const page=await readFile(join(dir,'dist/news-alpha.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
-  assert.match(page,/products\?q=A%26B&amp;source=news-alpha/);assert.match(page,/contact\?source=news-alpha/);assert.match(page,/noindex,follow/);assert.doesNotMatch(map,/news-alpha/);assert.match(home,/data-site-theme="teal"/);assert.match(home,/data-managed-english="Your &lt;API&gt; partner"/);
+  assert.match(page,/products\?q=A%26B&amp;source=news-alpha/);assert.match(page,/contact\?source=news-alpha/);assert.doesNotMatch(page,/noindex/);assert.match(map,/news-alpha/);assert.match(home,/data-site-theme="teal"/);assert.match(home,/data-managed-english="Your &lt;API&gt; partner"/);
 });
 test('featured products and product details use managed data without inventing supply information',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-featured-'));
@@ -56,4 +56,13 @@ test('featured products and product details use managed data without inventing s
   const home=await readFile(join(dir,'dist/index.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-a.html'),'utf8'),service=await readFile(join(dir,'dist/services.html'),'utf8');
   const featured=home.match(/<div class="product-spotlight"[^>]*>(.*?)<\/div>/s)[1];assert.match(featured,/Alpha/);assert.match(featured,/Beta/);assert.match(featured,/Gamma/);assert.match(featured,/Delta/);
   assert.match(detail,/CAS number/);assert.match(detail,/Specification \/ purity/);assert.match(detail,/98%/);assert.match(detail,/Available documentation/);assert.match(detail,/COA/);assert.match(detail,/Packaging/);assert.match(detail,/Supply availability/);assert.match(detail,/To be confirmed for your project/);assert.doesNotMatch(service,/Zhejiang Shanyuan|East Asia Pharmaceutical/i);
+});
+
+test('published product and news terms are visible and discoverable while offline products stay excluded',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'lento-seo-'));
+  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  await writeFile(join(dir,'content.json'),JSON.stringify({news:[{id:'full',title:'Article title',body:'Unique article content',keywords:'CMC, process transfer'},{id:'brief',title:'Brief title',summary:'Brief summary',keywords:'market intelligence'}],products:[{id:'published',name:'Example molecule',cas:'123-45-6',alias:'示例别名',category:'API',keywords:'synonym one, 特殊词, <script>alert(1)</script>'},{id:'offline',name:'Offline item',publication:'offline'}]}));
+  await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
+  const page=await readFile(join(dir,'dist/catalog-published.html'),'utf8'),list=await readFile(join(dir,'dist/products.html'),'utf8'),full=await readFile(join(dir,'dist/news-full.html'),'utf8'),brief=await readFile(join(dir,'dist/news-brief.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
+  assert.match(page,/<title>Example molecule \| CAS 123-45-6 \| API \| LentoTech<\/title>/);assert.match(page,/示例别名/);assert.match(page,/synonym one/);assert.match(page,/&lt;script&gt;/);assert.doesNotMatch(page,/<script>alert/);assert.match(list,/data-search="[^"]*特殊词/);assert.match(full,/Unique article content/);assert.match(full,/CMC · process transfer/);assert.match(brief,/market intelligence/);assert.doesNotMatch(brief,/noindex/);assert.match(map,/catalog-published/);assert.match(map,/news-full/);assert.match(map,/news-brief/);assert.doesNotMatch(map,/catalog-offline/);
 });

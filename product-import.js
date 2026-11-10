@@ -1,5 +1,5 @@
 ((root)=>{
-  const keys={name:/^(?:产品名称|英文名称|英文名|商品名称|product name|product|name)$/i,alias:/^(?:中文名称|中文名|别名|chinese name|alias|synonyms?)$/i,category:/^(?:产品类别|类别|分类|category|type)$/i,cas:/^(?:cas(?:编号|号|\s*(?:number|no\.?))?)$/i,description:/^(?:产品说明|产品描述|说明|描述|简介|description|summary)$/i,image:/^(?:图片链接|图片|image(?: url)?|photo)$/i};
+  const keys={name:/^(?:产品名称|英文名称|英文名|商品名称|product name|product|name)$/i,alias:/^(?:中文名称|中文名|别名|chinese name|alias|synonyms?)$/i,category:/^(?:产品类别|类别|分类|category|type)$/i,cas:/^(?:cas(?:编号|号|\s*(?:number|no\.?))?)$/i,description:/^(?:产品说明|产品描述|说明|描述|简介|description|summary)$/i,keywords:/^(?:关键词|关键字|keywords?|search terms?)$/i,image:/^(?:图片链接|图片|image(?: url)?|photo)$/i};
   function parse(text){
     const result={};
     for(const original of String(text||'').split(/\r?\n/)){

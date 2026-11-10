@@ -11,3 +11,4 @@ test('extracts labelled Chinese and English product details and Markdown image',
 test('does not invent fields from arbitrary text and recognizes a CAS number',()=>{
   assert.deepEqual(parse('A reference: 123-45-6'),{cas:'123-45-6'});
 });
+test('extracts explicitly labelled product keywords',()=>{assert.deepEqual(parse('Product name: Example\n关键词: API, CAS 123-45-6'),{name:'Example',keywords:'API, CAS 123-45-6',cas:'123-45-6'})});

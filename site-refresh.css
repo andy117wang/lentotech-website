@@ -66,3 +66,19 @@ a .action-icon,button .action-icon{width:1.9em;height:1.9em;min-width:1.9em;bord
 a:hover .action-icon,a:focus-visible .action-icon,button:hover .action-icon,button:focus-visible .action-icon{transform:scale(1.08)}
 @media(prefers-reduced-motion:reduce){a:hover .action-icon,button:hover .action-icon{transform:none}}
 .action-icon svg{width:1.45em;height:1.45em}
+/* Light actions require dark text, including focus and hover states. */
+.button.light,.button.light:visited{background:#f4f8fd;color:#15365e}
+.button.light:hover,.button.light:focus-visible,.button.light:active{background:#dceaf8;color:#102b50}
+.button.light .action-icon,.button.light:visited .action-icon{background:#dae9f8;color:#15365e}
+.contact-inner>div:last-child{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px}
+.contact-inner>div:last-child p{flex-basis:100%;margin:0}
+input::placeholder,textarea::placeholder{color:#566b7d;opacity:1}
+/* Small, decorative illustrations complement the labels without replacing them. */
+[data-medical-icon]{display:inline-flex;align-items:center;gap:.55em}
+.medical-icon{display:inline-grid;place-items:center;flex:0 0 auto;width:1.9em;height:1.9em;background:#e5eef8;color:#1e5080;border-radius:50%;vertical-align:middle}
+.medical-icon svg{display:block;width:1.35em;height:1.35em}
+.product-spotlight .featured-label .medical-icon,.catalog-card .kind .medical-icon{font-size:13px;color:#214e78}
+.product-detail h1 .medical-icon{font-size:.38em}
+.capacity strong .medical-icon,.service-grid h3 .medical-icon{font-size:.7em}
+/* Brand text should not inherit the square mark's background. */
+.brand .action-label{display:inline;width:auto;height:auto;margin:0;background:transparent;color:inherit;place-items:normal}

@@ -40,3 +40,11 @@ test('news article pages are searchable and escape unsafe content',async()=>{
   const page=await readFile(join(dir,'dist/news-item-123.html'),'utf8'),list=await readFile(join(dir,'dist/news.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
   assert.match(page,/A &amp; B/);assert.match(page,/&lt;script&gt;/);assert.doesNotMatch(page,/<script>alert/);assert.doesNotMatch(page,/href="javascript:/);assert.match(list,/href="\/news-item-123"/);assert.match(map,/lentotech.com\/news-item-123/);
 });
+test('summary news directs visitors to a search and inquiry without creating a thin sitemap page',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'lento-journey-'));
+  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  await writeFile(join(dir,'content.json'),JSON.stringify({site:{theme:'teal',heroTitle:'Your <API> partner'},news:[{id:'alpha',title:'Source story',summary:'Summary',url:'https://example.com',related:'A&B'}],products:[]}));
+  await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
+  const page=await readFile(join(dir,'dist/news-alpha.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
+  assert.match(page,/products\?q=A%26B&amp;source=news-alpha/);assert.match(page,/contact\?source=news-alpha/);assert.match(page,/noindex,follow/);assert.doesNotMatch(map,/news-alpha/);assert.match(home,/data-site-theme="teal"/);assert.match(home,/data-managed-english="Your &lt;API&gt; partner"/);
+});

@@ -1,6 +1,6 @@
 (()=>{
   const form=document.querySelector('#inquiry-form');if(!form)return;
-  const product=new URLSearchParams(location.search).get('product');if(product){const requirement=form.querySelector('[name=requirement]');if(requirement)requirement.value='Product: '+product+'\n';}
+  const params=new URLSearchParams(location.search),source=params.get('source')||'';const product=params.get('product');if(product){const requirement=form.querySelector('[name=requirement]');if(requirement)requirement.value='Product: '+product+'\n';}
   const note=document.querySelector('#form-note'),button=form.querySelector('button[type=submit]');let enabled=false,widget;
   const say=text=>{note.textContent=text};
   fetch('/api/feedback?config=1',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(config=>{
@@ -12,7 +12,7 @@
   }).catch(()=>{});
   form.addEventListener('submit',async event=>{
     event.preventDefault();if(!form.reportValidity())return;const data=new FormData(form);
-    const name=String(data.get('name')||'').trim(),email=String(data.get('email')||'').trim(),type=String(data.get('type')||''),stage=String(data.get('stage')||'').trim(),market=String(data.get('market')||'').trim(),requirements=String(data.get('requirement')||'').trim();const message=[stage?'Project stage: '+stage:'',market?'Target markets: '+market:'',requirements].filter(Boolean).join('\n');if(message.length>1200){say('Please shorten the request to 1,200 characters including stage and market.');return}
+    const name=String(data.get('name')||'').trim(),email=String(data.get('email')||'').trim(),type=String(data.get('type')||''),stage=String(data.get('stage')||'').trim(),market=String(data.get('market')||'').trim(),requirements=String(data.get('requirement')||'').trim();const reference=/^news-[a-z0-9-]{1,100}$/.test(source)?'Article reference: '+source:'';const message=[reference,stage?'Project stage: '+stage:'',market?'Target markets: '+market:'',requirements].filter(Boolean).join('\n');if(message.length>1200){say('Please shorten the request to 1,200 characters including stage and market.');return}
     if(!enabled){const body=['Name: '+name,'Work email: '+email,'Inquiry type: '+type,'','Requirement:',message].join('\n');location.href='mailto:info@lentotech.com?subject='+encodeURIComponent(type+' inquiry — '+name)+'&body='+encodeURIComponent(body);return}
     const challenge=window.turnstile.getResponse(widget);if(!challenge){say('Please complete the verification before sending.');return}
     button.disabled=true;try{const res=await fetch('/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,type,message,challenge})});if(!res.ok)throw Error();form.reset();window.turnstile.reset(widget);say('Thank you. Your inquiry has been received.');}catch{window.turnstile.reset(widget);say('We could not send your message. Please try again or email info@lentotech.com.')}finally{button.disabled=false}

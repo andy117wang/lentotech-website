@@ -42,4 +42,6 @@ for(const item of await readdir(dist,{withFileTypes:true})){
 const sitemapPath=join(dist,'sitemap.xml');
 const sitemap=await readFile(sitemapPath,'utf8');
 await writeFile(sitemapPath,sitemap.replace(/(https:\/\/www\.lentotech\.com\/[a-z0-9-]+)\.html(?=<)/g,'$1'));
-if(process.env.CF_PAGES_BRANCH&&process.env.CF_PAGES_BRANCH!=='main')await writeFile(join(dist,'_headers'),'/*\n  X-Robots-Tag: noindex, nofollow\n');
+const previewHeader=process.env.CF_PAGES_BRANCH&&process.env.CF_PAGES_BRANCH!=='main'?'/*\n  X-Robots-Tag: noindex, nofollow\n\n':'';
+const downloadHeaders='/uploads/html/*\n  Content-Type: text/plain; charset=utf-8\n  Content-Disposition: attachment; filename="document.html"\n  X-Content-Type-Options: nosniff\n  Content-Security-Policy: sandbox; default-src \'none\'\n\n/uploads/markdown/*\n  Content-Type: text/plain; charset=utf-8\n  Content-Disposition: attachment; filename="document.md"\n  X-Content-Type-Options: nosniff\n';
+await writeFile(join(dist,'_headers'),previewHeader+downloadHeaders);

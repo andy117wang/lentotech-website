@@ -9,7 +9,7 @@ test('catalog retains filters in shareable URL and filters products',async()=>{
   const items={'product-search':control('search'),'product-type':control('type'),'product-area':control('area'),'product-stage':control('stage'),'product-count':{},'no-results':{},'area-filter':{},'stage-filter':{},'clear-product-filters':control('clear')};
   const cards=[{dataset:{kind:'API',search:'agomelatine 138112-76-2'},hidden:false},{dataset:{kind:'Intermediate',search:'example'},hidden:false}];
   const location={search:'?q=agomelatine',href:'https://example.test/products?q=agomelatine'},history={replaceState(_a,_b,url){location.href=url.href;location.search=url.search}};
-  const document={getElementById:id=>items[id],querySelectorAll:()=>cards,createElement:()=>({})};
+  const document={addEventListener(){},getElementById:id=>items[id],querySelectorAll:()=>cards,createElement:()=>({})};
   vm.runInNewContext(source,{document,location,history,URL,URLSearchParams,window:{addEventListener(){}}});
   assert.equal(items['product-count'].textContent,'1 product');assert.equal(cards[1].hidden,true);
   items['product-search'].value='';items['product-type'].value='Intermediate';handlers.typechange();

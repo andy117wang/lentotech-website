@@ -83,3 +83,12 @@ input::placeholder,textarea::placeholder{color:#566b7d;opacity:1}
 /* Brand text should not inherit the square mark's background. */
 .brand .action-label{display:inline;width:auto;height:auto;margin:0;background:transparent;color:inherit;place-items:normal}
 .related-terms{margin:24px 0;padding:14px 16px;background:#f1f5fa;color:#334d69;font-size:14px;line-height:1.7;overflow-wrap:anywhere}.related-terms strong{color:#17365e}
+
+/* Readable, stable interaction states across the public site. */
+a .action-label,button .action-label{display:inline-block;transform-origin:left center;transition:transform .18s ease}
+a:hover .action-label,a:focus-visible .action-label,button:hover .action-label,button:focus-visible .action-label,.audience-paths a:hover strong .action-label,.audience-paths a:focus-visible strong .action-label{font-size:inherit;transform:scale(1.06)}
+.capability-chip{font-size:15px;line-height:1.45}
+.capability-group p{font-size:15px}
+.capability-note,.editorial-intro .hero-trust{font-size:14px}
+@media(max-width:700px){.capability-chip{font-size:14px}.product-spotlight a{min-height:132px}.editorial-image figcaption{max-width:calc(100% - 24px);line-height:1.45}}
+@media(prefers-reduced-motion:reduce){a .action-label,button .action-label{transition:none}a:hover .action-label,a:focus-visible .action-label,button:hover .action-label,button:focus-visible .action-label{transform:none}}

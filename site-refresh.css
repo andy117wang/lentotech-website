@@ -92,3 +92,24 @@ a:hover .action-label,a:focus-visible .action-label,button:hover .action-label,b
 .capability-note,.editorial-intro .hero-trust{font-size:14px}
 @media(max-width:700px){.capability-chip{font-size:14px}.product-spotlight a{min-height:132px}.editorial-image figcaption{max-width:calc(100% - 24px);line-height:1.45}}
 @media(prefers-reduced-motion:reduce){a .action-label,button .action-label{transition:none}a:hover .action-label,a:focus-visible .action-label,button:hover .action-label,button:focus-visible .action-label{transform:none}}
+
+/* Responsive safeguards and restrained, purposeful interaction feedback. */
+.service-grid,.capacity{grid-template-columns:repeat(4,minmax(0,1fr))}
+.service-grid article,.capacity>div,.news-list article,.catalog-card,.capability-group{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){
+  .editorial-hero{grid-template-columns:minmax(0,1fr)}
+  .service-grid,.capacity{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+  .service-grid,.capacity{grid-template-columns:minmax(0,1fr)}
+  .service-grid article+article,.capacity>div+div{border-left:0;padding-left:0}
+  .service-grid article,.capacity>div{padding-right:0}
+  .capability-chip{max-width:100%;overflow-wrap:anywhere}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .button,.text-link,.story-link,.capability-chip,.product-spotlight a,.audience-paths a{transition:background-color .2s ease,color .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .site-header nav a,.catalog-header nav a,.header nav a{text-decoration-color:transparent;text-decoration-thickness:2px;text-underline-offset:6px;transition:text-decoration-color .2s ease,color .2s ease}
+  .site-header nav a:hover,.catalog-header nav a:hover,.header nav a:hover{text-decoration-line:underline;text-decoration-color:currentColor}
+}
+.button:active,.text-link:active,.story-link:active,.capability-chip:active,.product-spotlight a:active{filter:brightness(.96)}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button:active,.text-link:active,.story-link:active,.capability-chip:active,.product-spotlight a:active{filter:none}}

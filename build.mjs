@@ -45,6 +45,7 @@ for(const file of ['index.html','news.html','products.html','services.html']){
     if(heroTitle)html=html.replace(/(<h1 data-i18n="editorialTitle")>/, '$1 data-managed-english="'+esc(heroTitle)+'">').replace(/(<h1 data-i18n="editorialTitle"[^>]*>)[\s\S]*?<\/h1>/,'$1'+esc(heroTitle)+'</h1>');
     if(heroLead)html=html.replace(/(<p data-i18n="editorialLead")>/, '$1 data-managed-english="'+esc(heroLead)+'">').replace(/(<p data-i18n="editorialLead"[^>]*>)[\s\S]*?<\/p>/,'$1'+esc(heroLead)+'</p>');
     if(heroImage)html=html.replace('src="lab-illustrative.jpg" alt=""','src="'+esc(heroImage)+'" alt=""');
+    for(const [id,key] of [['api','metricApi'],['cdmo','metricCdmo'],['markets','metricMarkets']]){const value=String(site[key]||'').trim();if(value)html=html.replace(new RegExp('(<strong class="network-number" data-metric="'+id+'">)[^<]*(</strong>)'),(_,open,close)=>open+esc(value)+close)}
     for(const x of offlineProducts){if(/^product-[a-z0-9-]+\.html$/.test(x.detail||''))html=html.replace(new RegExp('<a href="'+x.detail.replace(/\./g,'\\.')+'">[\\s\\S]*?<\/a>','g'),'')}
     for(const x of activeProducts){if(/^product-[a-z0-9-]+\.html$/.test(x.detail||'')){const re=new RegExp('<a href="'+x.detail.replace(/\./g,'\\.')+'"><strong>[^<]*</strong><span>[^<]*</span></a>','g');html=html.replace(re,`<a href="${esc(x.detail)}"><strong>${esc(x.name)}</strong><span>${x.cas?'CAS '+esc(x.cas):''}</span></a>`)}}
     html=html.replace(/<p data-managed-company>.*?<\/p>/,`<p data-managed-company>${esc(content.company?.description)}</p>`);

@@ -6,5 +6,6 @@
   const controls={q:search,type,area,stage};
   function readLocation(){const params=new URLSearchParams(location.search);for(const [key,control] of Object.entries(controls))control.value=params.get(key)||''}
   function update(writeUrl=false){const q=search.value.trim().toLocaleLowerCase();let n=0;for(const card of cards){const show=(!q||card.dataset.search.includes(q))&&(!type.value||card.dataset.kind===type.value)&&(!area.value||card.dataset.area===area.value)&&(!stage.value||card.dataset.stage===stage.value);card.hidden=!show;if(show)n++}count.textContent=n+(n===1?' product':' products');empty.hidden=n!==0;if(writeUrl){const url=new URL(location.href);for(const [key,control] of Object.entries(controls)){if(control.value.trim())url.searchParams.set(key,control.value.trim());else url.searchParams.delete(key)}history.replaceState(null,'',url)}}
+  document.getElementById('clear-product-filters')?.addEventListener('click',()=>{for(const control of Object.values(controls))control.value='';update(true);search.focus()});
   readLocation();update();search.addEventListener('input',()=>update(true));for(const control of [type,area,stage])control.addEventListener('change',()=>update(true));window.addEventListener('popstate',()=>{readLocation();update()});
 })();

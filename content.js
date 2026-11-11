@@ -12,7 +12,8 @@
       const h=el('h3'),url=safeUrl(item.url);if(url){const a=el('a',item.title);a.href=url;h.append(a)}else h.textContent=item.title;article.append(h,el('p',item.summary||''));news.prepend(article)
     }
     const grid=document.querySelector('.catalog-grid');
-    if(grid&&Array.isArray(data.products))for(const item of data.products){
+    const products=[...(Array.isArray(data.products)?data.products:[]),...(Array.isArray(data.news)?data.news.filter(item=>item&&item.category==='Intermediate'&&item.name):[])];
+    if(grid)for(const item of products){
       if(!item.name)continue;const card=el('article','','catalog-card');if(/^product-\d+$/.test(item.id||''))card.id=item.id;card.dataset.kind=item.category||'Other';card.dataset.search=[item.name,item.alias,item.cas,item.description,item.category,item.search].join(' ').toLocaleLowerCase();
       const heading=el('h2');if(/^product-[a-z0-9-]+\.html$/.test(item.detail||'')){const link=el('a',item.name);link.href=item.detail;heading.append(link)}else heading.textContent=item.name;
       card.append(el('span',item.category||'Product','kind'),heading);if(item.alias)card.append(el('p',item.alias,'other-name'));if(item.cas)card.append(el('p','CAS '+item.cas,'cas'));if(item.description)card.append(el('p',item.description));

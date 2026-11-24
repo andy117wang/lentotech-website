@@ -1,0 +1,33 @@
+# LentoTech (兰途科技)
+
+> LentoTech is a pharmaceutical B2B platform connecting global buyers with active pharmaceutical ingredients (APIs), pharmaceutical intermediates, finished dosage forms (FDF), cross-border supply and contract development and manufacturing (CDMO) opportunities.
+
+Official website: https://lentotech.com/
+
+Business inquiries: info@lentotech.com
+
+LentoTech connects international pharmaceutical requirements with product sourcing, specialist manufacturing partners and technical intelligence. The product catalog supports searches by product name, CAS number and molecular formula. Service areas include chemical synthesis, biocatalysis and bioprocessing, process development, scale-up, technology transfer, formulation and drug product projects, and cross-border supply coordination.
+
+Product listings are informational and do not establish current inventory, manufacturing ownership, regulatory approval or a guaranteed supply commitment. Confirm product specifications, availability, quality documentation, partner capabilities and target-market regulatory status directly with LentoTech for each project. News and technical articles should be interpreted in the context of their publication date and original sources. The website is intended for business information, not medical or regulatory advice.
+
+## Core pages
+
+- [LentoTech homepage](https://lentotech.com/): Company overview, featured products, technology capabilities and pharmaceutical intelligence.
+- [Product catalog](https://lentotech.com/products): Search pharmaceutical APIs, intermediates and other listed products by name, CAS number or molecular formula.
+- [Sourcing, trade and CDMO services](https://lentotech.com/services): Pharmaceutical product sourcing, international trade, formulation, process development and manufacturing partner discussions.
+- [CDMO and API manufacturing guide](https://lentotech.com/cdmo-guide): Manufacturing partner evaluation, process knowledge, quality systems, scale-up and technology transfer considerations.
+- [Pharmaceutical news and insights](https://lentotech.com/news): Industry developments, regulatory updates, commercial analysis and technical perspectives.
+- [Contact and business inquiries](https://lentotech.com/contact): Discuss a product sourcing requirement, CDMO project, technical specifications, target market or company profile.
+
+## Selected product profiles
+
+- [Agomelatine](https://lentotech.com/product-agomelatine): CAS 138112-76-2.
+- [Amisulpride](https://lentotech.com/catalog-product-2): CAS 71675-85-9.
+- [Buspirone Hydrochloride](https://lentotech.com/catalog-product-3): CAS 33386-08-2.
+- [Cariprazine Hydrochloride](https://lentotech.com/catalog-product-4): CAS 1083076-69-0.
+- [DL-Vortioxetine Lactate](https://lentotech.com/catalog-product-5): CAS 1253056-29-9.
+- [Escitalopram Oxalate](https://lentotech.com/catalog-product-6): CAS 219861-08-2.
+
+## Optional
+
+- [XML sitemap](https://lentotech.com/sitemap.xml): Additional public product pages and published news articles; use this to discover current content beyond the curated index.

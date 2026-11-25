@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,copyFile,writeFile,readFile,access} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+const run=promisify(execFile);
+async function fixture(){const dir=await mkdtemp(join(tmpdir(),'lento-trade-public-'));for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));await writeFile(join(dir,'content.json'),JSON.stringify({products:[{id:'product-1',name:'Existing name',cas:'123-45-6',category:'API'},{id:'product-2',name:'Hidden',publication:'offline'}],news:[]}));return dir}
+const row=(code,name,identifier='',description='')=>({code,name,category:'API',identifier,description,specification:'Verified specification',markets:'EU'});
+test('trade feed merges into the native catalog, preserves existing IDs and creates inquiry references',async()=>{const dir=await fixture();await writeFile(join(dir,'trade-catalog.json'),JSON.stringify({generated_at:'2026-11-25',products:[row('PRO-0123456789ab','Example trade product','','<b>not markup</b>'),row('PRO-123456789abc','Existing name','123-45-6'),row('PRO-23456789abcd','Hidden')]}));await run(process.execPath,[join(dir,'build.mjs')]);const page=await readFile(join(dir,'dist/products.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-pro-0123456789ab.html'),'utf8'),existing=await readFile(join(dir,'dist/catalog-product-1.html'),'utf8');assert.match(page,/Example trade product/);assert.match(page,/id="product-1"/);assert.doesNotMatch(page,/>Hidden</);assert.match(detail,/trade_code=PRO-0123456789ab/);assert.match(existing,/trade_code=PRO-123456789abc/);assert.match(detail,/&lt;b&gt;not markup&lt;\/b&gt;/);assert.match(detail,/Verified specification/);await assert.rejects(access(join(dir,'dist/catalog-pro-123456789abc.html')));const map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');assert.match(map,/catalog-pro-0123456789ab/);});
+test('rejects any unexpected fields or duplicate trade IDs before publishing',async()=>{const dir=await fixture();await writeFile(join(dir,'trade-catalog.json'),JSON.stringify({products:[{...row('PRO-0123456789ab','Sample'),internal_notes:'private'}]}));await assert.rejects(run(process.execPath,[join(dir,'build.mjs')]),/Invalid or duplicate public trade product/);});

@@ -1,3 +1,20 @@
+/* Preserve public bookmarks for topics that moved off the landing page. */
+if (location.pathname === '/' || location.pathname === '/index.html') {
+  const destinations = {
+    '#products': ['/products', '#featured'],
+    '#capabilities': ['/services', '#capabilities'],
+    '#intelligence': ['/news', ''],
+    '#inquiry': ['/contact', '#inquiry']
+  };
+  const destination = destinations[location.hash];
+  if (destination) location.replace(destination[0] + location.search + destination[1]);
+}
+
+if (location.hash === '#featured') {
+  const featured = document.getElementById('featured');
+  if (featured) featured.open = true;
+}
+
 /* Carry the public article identifier through the product and inquiry journey. */
 (()=>{
   const source=new URLSearchParams(location.search).get('source')||'';

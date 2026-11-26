@@ -65,24 +65,21 @@ const moduleSection=(items,heading)=>{const entries=(Array.isArray(items)?items:
 for(const file of ['index.html','news.html','products.html','services.html']){
   let html=await readFile(join(dist,file),'utf8');
   html=html.replace('<script defer src="content.js"></script>','');
-  if(file==='index.html'||file==='news.html')html=html.replace('<div class="news-list">','<div class="news-list">'+renderArticles(file==='index.html'?newsItems.slice(0,3):newsItems));
-  if(file==='services.html')html=html.replace('<div data-business-modules></div>',moduleSection(content.business,'Business areas'));
-  if(file==='index.html')html=html.replace('<div data-capability-modules></div>',moduleSection(content.capabilities,'Our capabilities'));
-  if(file==='products.html')html=html.replace('<div class="catalog-grid">','<div class="catalog-grid">'+products);
-  if(file==='index.html'){
+  if(file==='news.html')html=html.replace('<div class="news-list">','<div class="news-list">'+renderArticles(newsItems));
+  if(file==='services.html'){
+    html=html.replace('<div data-business-modules></div>',moduleSection(content.business,'Business areas'));
+    html=html.replace('<div data-capability-modules></div>',moduleSection(content.capabilities,'Our capabilities'));
+  }
+  if(file==='products.html'){
+    html=html.replace('<div class="catalog-grid">','<div class="catalog-grid">'+products);
     html=html.replace('<div class="product-spotlight" data-featured-products></div>','<div class="product-spotlight" data-featured-products>'+featuredMarkup+'</div>');
+  }
+  if(file==='index.html'){
     const site=content.site||{},heroTitle=String(site.heroTitle||'').trim(),heroLead=String(site.heroLead||'').trim(),heroImage=site.heroImage?url(site.heroImage):'';
-    if(heroTitle)html=html.replace(/(<h1 data-i18n="editorialTitle")>/, '$1 data-managed-english="'+esc(heroTitle)+'">').replace(/(<h1 data-i18n="editorialTitle"[^>]*>)[\s\S]*?<\/h1>/,'$1'+esc(heroTitle)+'</h1>');
+    if(heroTitle)html=html.replace(/(<h1 id="portal-title" data-i18n="editorialTitle")>/, '$1 data-managed-english="'+esc(heroTitle)+'">').replace(/(<h1 id="portal-title" data-i18n="editorialTitle"[^>]*>)[\s\S]*?<\/h1>/,'$1'+esc(heroTitle)+'</h1>');
     if(heroLead)html=html.replace(/(<p data-i18n="editorialLead")>/, '$1 data-managed-english="'+esc(heroLead)+'">').replace(/(<p data-i18n="editorialLead"[^>]*>)[\s\S]*?<\/p>/,'$1'+esc(heroLead)+'</p>');
     if(heroImage)html=html.replace('src="lab-illustrative.jpg" alt=""','src="'+esc(heroImage)+'" alt=""');
-    // Publication counts are derived from actual public data, not historic marketing claims.
-    for(const [id,value] of [['catalog',activeProducts.length],['cas',activeProducts.filter(x=>String(x.cas||'').trim()).length],['insights',newsItems.length]])html=html.replace(new RegExp('(<strong class="network-number" data-metric="'+id+'">)[^<]*(</strong>)'),(_,open,close)=>open+String(value)+close);
     html=html.replace('<script type="application/json" id="sourcing-index">[]</script>',()=>'<script type="application/json" id="sourcing-index">'+sourcingJSON+'</script>');
-    for(const x of offlineProducts){if(/^product-[a-z0-9-]+\.html$/.test(x.detail||''))html=html.replace(new RegExp('<a href="'+x.detail.replace(/\./g,'\\.')+'">[\\s\\S]*?<\/a>','g'),'')}
-    for(const x of activeProducts){if(/^product-[a-z0-9-]+\.html$/.test(x.detail||'')){const re=new RegExp('<a href="'+x.detail.replace(/\./g,'\\.')+'"><strong>[^<]*</strong><span>[^<]*</span></a>','g');html=html.replace(re,`<a href="${esc(x.detail)}"><strong>${esc(x.name)}</strong><span>${x.cas?'CAS '+esc(x.cas):''}</span></a>`)}}
-    html=html.replace(/<p data-managed-company>.*?<\/p>/,`<p data-managed-company>${esc(content.company?.description)}</p>`);
-    const link=content.company?.file?url(content.company.file):'';
-    if(link){html=html.replace('<a class="button" data-managed-company-file hidden>','<a class="button" data-managed-company-file href="'+esc(link)+'" download>');html=html.replace('data-company-profile-request href=', 'data-company-profile-request hidden href=');}
   }
   await writeFile(join(dist,file),html);
 }
@@ -97,13 +94,20 @@ const org={'@type':'Organization','@id':origin+'/#organization',name:'LentoTech'
 const webSite={'@type':'WebSite','@id':origin+'/#website',name:'LentoTech',url:origin+'/',publisher:{'@id':org['@id']},inLanguage:'en'};
 const productByFile=new Map(activeProducts.map(x=>[productPath(x),x]));
 const newsByFile=new Map(newsItems.map(x=>[newsPath(x),x]));
-const publicPages={'index.html':'Home','products.html':'Products','news.html':'News & insights','services.html':'Services','cdmo-guide.html':'Manufacturing guide','contact.html':'Contact'};
+const publicPages={'index.html':'Home','products.html':'Products','news.html':'News & insights','services.html':'Services','cdmo-guide.html':'Manufacturing guide','contact.html':'Contact','about.html':'About'};
 const decodeMeta=v=>String(v||'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 const metaValue=(html,name)=>decodeMeta(html.match(new RegExp('<meta\\s+name="'+name+'"\\s+content="([^"]*)"','i'))?.[1]||'');
 const jsonScript=value=>JSON.stringify(value).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
 const setMeta=(html,attr,name,value)=>{const tag=`<meta ${attr}="${name}" content="${esc(value)}">`,re=new RegExp('<meta\\s+'+attr+'="'+name+'"[^>]*>','i');return re.test(html)?html.replace(re,()=>tag):html.replace('</head>',tag+'</head>')};
 const asAbsolute=v=>{const u=url(v);return u?new URL(u,origin+'/').href:''};
 function enhancePublicPage(html,file){
+  if(file==='about.html'){
+    // Publication counts are derived from actual public data, not historic marketing claims.
+    for(const [id,value] of [['catalog',activeProducts.length],['cas',activeProducts.filter(x=>String(x.cas||'').trim()).length],['insights',newsItems.length]])html=html.replace(new RegExp('(<strong class="network-number" data-metric="'+id+'">)[^<]*(</strong>)'),(_,open,close)=>open+String(value)+close);
+    if(content.company?.description)html=html.replace(/<p data-managed-company>.*?<\/p>/,`<p data-managed-company>${esc(content.company.description)}</p>`);
+    const link=content.company?.file?url(content.company.file):'';
+    if(link){html=html.replace('<a class="button" data-managed-company-file hidden>','<a class="button" data-managed-company-file href="'+esc(link)+'" download>');html=html.replace('data-company-profile-request href=', 'data-company-profile-request hidden href=');}
+  }
   const pageUrl=canonical(file),product=productByFile.get(file),article=newsByFile.get(file),title=decodeMeta(html.match(/<title>(.*?)<\/title>/s)?.[1]||'LentoTech'),description=metaValue(html,'description');
   html=html.replace(/<link\s+rel="canonical"[^>]*>/gi,'').replace('</head>',`<link rel="canonical" href="${esc(pageUrl)}"></head>`);
   const displayName=product?.name||article?.title||publicPages[file]||title;
@@ -118,9 +122,9 @@ function enhancePublicPage(html,file){
   html=html.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi,'').replace('</head>',`<script type="application/ld+json">${jsonScript({'@context':'https://schema.org','@graph':graph})}</script></head>`);
   html=setMeta(html,'property','og:type',article?'article':'website');html=setMeta(html,'property','og:title',title);html=setMeta(html,'property','og:description',description);html=setMeta(html,'property','og:url',pageUrl);html=setMeta(html,'property','og:site_name','LentoTech');
   const socialImage=product?.image&&asAbsolute(product.image)||origin+'/'+(product?'vials-illustrative.jpg':'lab-illustrative.jpg');html=setMeta(html,'property','og:image',socialImage);html=setMeta(html,'property','og:image:alt',product?.image?product.name:'Illustrative pharmaceutical '+(product?'vials':'laboratory'));html=setMeta(html,'name','twitter:card','summary_large_image');
-  html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"><link rel="stylesheet" href="clinical-ui.css"></head>');
+  html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"><link rel="stylesheet" href="clinical-ui.css"><link rel="stylesheet" href="topic-layout.css"></head>');
   const current=product?'products.html':article?'news.html':file;
-  const navItems=[['products.html','navProducts','Products'],['services.html','navCapabilities','Sourcing &amp; CDMO'],['news.html','newsNav','News &amp; insights'],['contact.html','navContact','Contact']];
+  const navItems=[['products.html','navProducts','Products'],['services.html','navCapabilities','Sourcing &amp; CDMO'],['news.html','newsNav','News &amp; insights'],['about.html','aboutNav','About'],['contact.html','navContact','Contact']];
   html=html.replace(/<header\b[^>]*>[\s\S]*?<\/header>/i,header=>{
     const nav='<nav aria-label="Primary navigation" data-i18n-aria="navPrimaryLabel">'+navItems.map(([href,k,label])=>`<a href="${href}" data-i18n="${k}"${current===href?' aria-current="page"':''}>${label}</a>`).join('')+'</nav>';
     let out=header.replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/i,nav);
@@ -129,7 +133,7 @@ function enhancePublicPage(html,file){
   });
   if(!html.includes('src="app.js"'))html=html.replace('</head>','<script defer src="app.js"></script></head>');
   if(!html.includes('</footer>'))html=html.replace('</body>','<footer><a class="brand" href="index.html">LentoTech</a><span>Business inquiries: <a href="mailto:info@lentotech.com">info@lentotech.com</a></span></footer></body>');
-  if(html.includes('</footer>'))html=html.replace('</footer>','<nav class="site-footer-links" aria-label="Footer navigation"><a href="products.html">Product catalog</a><a href="services.html">Sourcing &amp; CDMO</a><a href="news.html">Industry insights</a><a href="contact.html">Business inquiries</a></nav></footer>');
+  if(file!=='index.html'&&html.includes('</footer>'))html=html.replace('</footer>','<nav class="site-footer-links" aria-label="Footer navigation"><a href="products.html">Product catalog</a><a href="services.html">Sourcing &amp; CDMO</a><a href="news.html">Industry insights</a><a href="about.html" data-i18n="aboutNav">About</a><a href="contact.html">Business inquiries</a></nav></footer>');
   return html;
 }
 // Pages serves clean URLs and redirects *.html. Point links and canonical metadata

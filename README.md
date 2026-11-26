@@ -14,7 +14,7 @@ Product and news content is search-readable in the built HTML, but ranking and i
 
 ## Content management (authorized management interface)
 
-The management page can add, edit, remove and reorder extra business areas (rendered on the services page) and capabilities (rendered on the home page). These are additional sections; the pre-existing hard-coded services are not editable in this editor. Module titles and descriptions are currently entered in English and are not automatically translated. Uploaded assets and published content are public. Changes publish through the GitHub build and are not immediate; local drafts remain in the current browser only.
+The management page can add, edit, remove and reorder extra business areas (rendered on the services page) and capabilities (rendered on the services page). These are additional sections; the pre-existing hard-coded services are not editable in this editor. Module titles and descriptions are currently entered in English and are not automatically translated. Uploaded assets and published content are public. Changes publish through the GitHub build and are not immediate; local drafts remain in the current browser only.
 
 `manage.html` edits `content.json` through the GitHub Contents API. Create a fine-grained token restricted to this repository with Contents read/write permission; enter it directly in the management page. The token remains in page memory only. Manage this token like a password, set an expiry, and revoke it if exposed. The management page is public but publishing requires a valid token. Protect the GitHub account with two-factor authentication.
 
@@ -29,15 +29,15 @@ Production website for lentotech.com, built by `node build.mjs` on Cloudflare Pa
 ## Design and content maintenance
 
 - `design.css` is the shared visual system loaded after the existing `styles.css`.
-- The website pages share News & insights, Products, CDMO services and About navigation.
-- Home order: introduction, latest news, pathways, catalog/search, capabilities, technical guide, inquiry.
+- The website pages share Products, Sourcing & CDMO, News & insights, About and Contact navigation.
+- The landing page contains the company introduction and quick catalog matching in one hero. Featured entries live in Products, technologies in Services, published news in News, the company profile and publication counts in About, and the full inquiry form in Contact.
 - `catalog.js` accepts `?q=` for product name/CAS searches; preserve the 72 existing catalog entries and IDs.
 - Images are existing illustrative assets, not evidence of LentoTech-owned manufacturing facilities.
 - The native form submits to private feedback storage after verification when configured; email fallback prepares an email without sending it automatically.
 
 ## WorkBuddy news updates
 
-Always fetch current `codex/unified-website` before preparing a news branch. News is managed through the corresponding `content.json` records or authorized management interface; the build renders homepage excerpts and news archive. Preserve existing article IDs, dates, source links, English content, shared visual system, product search, and page structure. Do not overwrite complete pages from older static checkouts or delete historical articles. Publish only within the user-authorized editorial scope.
+Always fetch current `codex/unified-website` before preparing a news branch. News is managed through the corresponding `content.json` records or authorized management interface; the build renders the news archive and article pages. Preserve existing article IDs, dates, source links, English content, shared visual system, product search, and page structure. Do not overwrite complete pages from older static checkouts or delete historical articles. Publish only within the user-authorized editorial scope.
 
 ## Verification — 2026-10-31
 
@@ -50,7 +50,7 @@ PR #3 integrated `trade-catalog.json`, whose seven public product fields are val
 
 ## Public interface and search discovery (2026 design)
 
-`brand-2026.css` extends the existing visual system across the site; do not delete the earlier shared styles or content. Product detail pages use a responsive facts panel, visible inquiry entry and links to related public products. The homepage sourcing summary remains translated through the existing five-language selector. The indexable base pages are English; client-side translations are not separate indexed-language pages, so no artificial `hreflang` alternate URLs are emitted.
+`brand-2026.css` extends the existing visual system across the site; do not delete the earlier shared styles or content. Product detail pages use a responsive facts panel, visible inquiry entry and links to related public products. The homepage introduction, search controls and shared navigation are available through the existing five-language selector. The indexable base pages are English; client-side translations are not separate indexed-language pages, so no artificial `hreflang` alternate URLs are emitted.
 
 The build derives one clean canonical URL, Open Graph metadata, Schema.org JSON-LD (Organization, WebSite, WebPage, breadcrumbs, Product, Article and catalog/news ItemList where applicable), and a sitemap from actual public generated pages. Product metadata never invents offers, ratings, inventory, approvals or price; article dates and citations come only from published records. `dist/llms.txt` is refreshed from public catalog and published news on every build as a supplemental discovery index. The real production branch `codex/unified-website` is not covered by the preview-wide `X-Robots-Tag: noindex`; management and preview paths remain non-indexable. Search/GEO discovery is not guaranteed by these signals. Check `node --test tests/*.test.mjs`, generate `node build.mjs`, compare the public output, and verify actual deployment.
 
@@ -58,5 +58,5 @@ The build derives one clean canonical URL, Open Graph metadata, Schema.org JSON-
 
 - `sourcing-2026.css` extends the shared visual system; the landing hero is asymmetric, the catalog uses evidence labels and responsive cards, and the native inquiry presents optional structured requirements. The homepage matcher in `sourcing.js` searches the static allowlisted JSON index produced by `build.mjs` from **published** product records only. Exact CAS, name, synonym and formula matches and partial text matches are described as catalog matches; never as actual supplier availability, quality qualification or regulatory approval. No external AI service or private workbench data.
 - The matcher passes the selected public product name and existing public trade code to the native contact form. Unlisted search text is handed off as a sourcing request, never a fabricated product or supplier. Company, quantity, specification and requested documents are optional and remain in the existing private inquiry message or email fallback; the total 1,200-character limit and Turnstile behavior are retained. Email preparation is not an online submission.
-- The homepage metrics are computed from actual public product entries, entries with a CAS field and published insight records. Historical manual `metricApi`, `metricCdmo`, `metricMarkets` values are retained in management data but are no longer used for public counts. No invented supply or partnership metrics.
+- The About page metrics are computed from actual public product entries, entries with a CAS field and published insight records. Historical manual `metricApi`, `metricCdmo`, `metricMarkets` values are retained in management data but are no longer used for public counts. No invented supply or partnership metrics.
 - The public page build inserts the shared navigation and five-language selector, persists the chosen UI language, and translates the major search/brief/navigation controls. Product names and technical/news original content remain unchanged; per-language indexed content is not claimed. English canonical product and article metadata are unchanged by UI language.

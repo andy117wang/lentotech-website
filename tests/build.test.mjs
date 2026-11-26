@@ -7,13 +7,13 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 test('build exposes content in HTML and escapes unsafe text',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-build-'));
-  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','about.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
   await writeFile(join(dir,'content.json'),JSON.stringify({company:{description:'Company',file:'/uploads/profile.pdf'},business:[{title:'Supply <verified>',description:'Example service',link:'javascript:alert(1)'}],capabilities:[{title:'Analytical review',description:'Scope subject to confirmation'}],news:[{title:'News <script>alert(1)</script>',summary:'Summary'}],products:[{name:'Example molecule',cas:'123-45-6',formula:'C15H17NO2',category:'API',image:'/uploads/example.png'}]}));
   await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
   const news=await readFile(join(dir,'dist/news.html'),'utf8'),products=await readFile(join(dir,'dist/products.html'),'utf8');
   assert.match(news,/News &lt;script&gt;alert\(1\)&lt;\/script&gt;/);assert.match(products,/Example molecule/);assert.match(products,/123-45-6/);assert.match(products,/data-search="[^"]*c15h17no2/);assert.doesNotMatch(news,/<script defer src="content.js">/);
   assert.match(products,/<link rel="canonical" href="https:\/\/lentotech\.com\/products">/);
-  assert.match(products,/src="\/uploads\/example\.png"/);const services=await readFile(join(dir,'dist/services.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8');assert.match(services,/Supply &lt;verified&gt;/);assert.doesNotMatch(services,/javascript:alert/);assert.match(home,/Analytical review/);assert.match(home,/data-managed-company-file href="\/uploads\/profile\.pdf"/);
+  assert.match(products,/src="\/uploads\/example\.png"/);const services=await readFile(join(dir,'dist/services.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8');assert.match(services,/Supply &lt;verified&gt;/);assert.doesNotMatch(services,/javascript:alert/);assert.match(services,/Analytical review/);assert.doesNotMatch(home,/Analytical review/);const about=await readFile(join(dir,'dist/about.html'),'utf8');assert.match(about,/data-managed-company-file href="\/uploads\/profile\.pdf"/);
 });
 test('publishes product detail and removes offline legacy products from catalog and sitemap',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-visibility-'));
@@ -42,19 +42,20 @@ test('news article pages are searchable and escape unsafe content',async()=>{
 });
 test('published summary news is discoverable and directs visitors to products and inquiry',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-journey-'));
-  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','about.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
   await writeFile(join(dir,'content.json'),JSON.stringify({site:{theme:'teal',heroTitle:'Your <API> partner',heroImage:'/uploads/hero.png',metricApi:'200+',metricCdmo:'<50>'},news:[{id:'alpha',title:'Source story',summary:'Summary',url:'https://example.com',related:'A&B'}],products:[]}));
   await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
   const page=await readFile(join(dir,'dist/news-alpha.html'),'utf8'),home=await readFile(join(dir,'dist/index.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
-  assert.match(page,/products\?q=A%26B&amp;source=news-alpha/);assert.match(page,/contact\?source=news-alpha/);assert.doesNotMatch(page,/noindex/);assert.match(map,/news-alpha/);assert.match(home,/src="\/uploads\/hero.png" alt=""/);assert.match(home,/name="q"/);assert.match(home,/data-metric="catalog">0/);assert.match(home,/data-metric="cas">0/);assert.match(home,/data-metric="insights">1/);assert.doesNotMatch(home,/data-metric="api"|data-metric="cdmo"|200\+|&lt;50&gt;/);assert.match(home,/data-site-theme="teal"/);assert.match(home,/data-managed-english="Your &lt;API&gt; partner"/);
+  const about=await readFile(join(dir,'dist/about.html'),'utf8');
+  assert.match(page,/products\?q=A%26B&amp;source=news-alpha/);assert.match(page,/contact\?source=news-alpha/);assert.doesNotMatch(page,/noindex/);assert.match(map,/news-alpha/);assert.match(home,/src="\/uploads\/hero.png" alt=""/);assert.match(home,/name="q"/);assert.match(about,/data-metric="catalog">0/);assert.match(about,/data-metric="cas">0/);assert.match(about,/data-metric="insights">1/);assert.doesNotMatch(about,/data-metric="api"|data-metric="cdmo"|200\+|&lt;50&gt;/);assert.match(home,/data-site-theme="teal"/);assert.match(home,/data-managed-english="Your &lt;API&gt; partner"/);
 });
 test('featured products and product details use managed data without inventing supply information',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'lento-featured-'));
   for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
   const products=[{id:'a',name:'Alpha',cas:'123-45-6',featured:'yes',specification:'98%',documentation:'COA'},{id:'b',name:'Beta',featured:'yes'},{id:'c',name:'Gamma',featured:'yes'},{id:'d',name:'Delta'}];
   await writeFile(join(dir,'content.json'),JSON.stringify({products,news:[]}));await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
-  const home=await readFile(join(dir,'dist/index.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-a.html'),'utf8'),service=await readFile(join(dir,'dist/services.html'),'utf8');
-  const featured=home.match(/<div class="product-spotlight"[^>]*>(.*?)<\/div>/s)[1];assert.match(featured,/Alpha/);assert.match(featured,/Beta/);assert.match(featured,/Gamma/);assert.match(featured,/Delta/);
+  const catalog=await readFile(join(dir,'dist/products.html'),'utf8'),detail=await readFile(join(dir,'dist/catalog-a.html'),'utf8'),service=await readFile(join(dir,'dist/services.html'),'utf8');
+  const featured=catalog.match(/<div class="product-spotlight"[^>]*>(.*?)<\/div>/s)[1];assert.match(featured,/Alpha/);assert.match(featured,/Beta/);assert.match(featured,/Gamma/);assert.match(featured,/Delta/);
   assert.match(detail,/CAS number/);assert.match(detail,/Specification \/ purity/);assert.match(detail,/98%/);assert.match(detail,/Available documentation/);assert.match(detail,/COA/);assert.match(detail,/Packaging/);assert.match(detail,/Supply availability/);assert.match(detail,/To be confirmed for your project/);assert.doesNotMatch(service,/Zhejiang Shanyuan|East Asia Pharmaceutical/i);
 });
 

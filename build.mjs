@@ -118,7 +118,7 @@ function enhancePublicPage(html,file){
   html=html.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi,'').replace('</head>',`<script type="application/ld+json">${jsonScript({'@context':'https://schema.org','@graph':graph})}</script></head>`);
   html=setMeta(html,'property','og:type',article?'article':'website');html=setMeta(html,'property','og:title',title);html=setMeta(html,'property','og:description',description);html=setMeta(html,'property','og:url',pageUrl);html=setMeta(html,'property','og:site_name','LentoTech');
   const socialImage=product?.image&&asAbsolute(product.image)||origin+'/'+(product?'vials-illustrative.jpg':'lab-illustrative.jpg');html=setMeta(html,'property','og:image',socialImage);html=setMeta(html,'property','og:image:alt',product?.image?product.name:'Illustrative pharmaceutical '+(product?'vials':'laboratory'));html=setMeta(html,'name','twitter:card','summary_large_image');
-  html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"></head>');
+  html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"><link rel="stylesheet" href="clinical-ui.css"></head>');
   const current=product?'products.html':article?'news.html':file;
   const navItems=[['products.html','navProducts','Products'],['services.html','navCapabilities','Sourcing &amp; CDMO'],['news.html','newsNav','News &amp; insights'],['contact.html','navContact','Contact']];
   html=html.replace(/<header\b[^>]*>[\s\S]*?<\/header>/i,header=>{

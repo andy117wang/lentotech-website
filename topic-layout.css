@@ -204,4 +204,6 @@
   .portal-content .editorial-intro h1 { font-size: 2rem; }
   .portal-content .editorial-intro > p:not(.eyebrow) { margin-block-start: var(--ui-s3); }
   .portal-search { margin-block-start: var(--ui-s4); }
+  .portal-search .hero-search-controls { grid-template-columns: minmax(0, 1fr) auto; }
+  .portal-search .hero-search-form button[type="submit"] { padding-inline: var(--ui-s3); }
 }

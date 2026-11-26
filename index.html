@@ -19,7 +19,7 @@
   <script defer src="sourcing.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"LentoTech","url":"https://www.lentotech.com/","email":"info@lentotech.com","description":"Pharmaceutical intelligence, product sourcing and CDMO opportunity matching."}</script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg"></head>
-<body class="site-portal">
+<body class="site-portal editorial-landing">
   <a class="skip-link" href="#main" data-i18n="skipToContent">Skip to content</a>
   <header class="site-header">
     <a class="brand" href="index.html" aria-label="LentoTech home"><span class="brand-mark">L</span><span>Lento<span class="brand-light">Tech</span></span></a>
@@ -29,17 +29,46 @@
   <main id="main">
     <section class="editorial-hero portal-hero" id="top" aria-labelledby="portal-title">
       <div class="portal-content">
-        <div class="editorial-intro"><p class="eyebrow" data-i18n="editorialEyebrow">LENTOTECH / SCIENCE. SUPPLY. CONNECTIONS.</p><h1 id="portal-title" data-i18n="editorialTitle">From molecule to sourcing decision.</h1><p data-i18n="editorialLead">Find pharmaceutical products, clarify documentation requirements, and start a sourcing or CDMO discussion with LentoTech.</p>
+        <div class="editorial-intro"><p class="eyebrow" data-i18n="landingEyebrow">Pharmaceutical sourcing &amp; CDMO</p><h1 id="portal-title" data-i18n="editorialTitle">From molecule to sourcing decision.</h1><p data-i18n="editorialLead">Find pharmaceutical products, clarify documentation requirements, and start a sourcing or CDMO discussion with LentoTech.</p>
           <div class="portal-search">
             <form class="hero-search-form" action="products.html" method="get"><label for="catalog-query" data-i18n="matcherLabel">Product name, CAS number or molecular formula</label><div class="hero-search-controls"><input id="catalog-query" type="search" name="q" placeholder="e.g. Agomelatine or 138112-76-2" autocomplete="off" maxlength="180" data-i18n-placeholder="matcherPlaceholder"><button type="submit" data-i18n="matcherSubmit">Find matches</button></div></form>
             <div id="sourcing-results" class="sourcing-results" aria-live="polite" aria-atomic="false"></div>
+            <p class="portal-note" data-i18n="landingBoundary">Catalog entries are a starting point. We confirm availability and documentation for each project.</p>
           </div>
         </div>
       </div>
       <figure class="portal-figure">
-        <img src="lab-illustrative.jpg" alt="" width="1400" height="933" fetchpriority="high" decoding="async">
-        <figcaption class="hero-image-credit">Illustrative image</figcaption>
+        <img data-hero-image src="editorial-vials.jpg" alt="" width="1500" height="1000" fetchpriority="high">
+        <figcaption class="hero-image-credit" data-i18n="landingPhoto">Illustrative image</figcaption>
       </figure>
+    </section>
+    <section class="editorial-topics" aria-labelledby="topics-title">
+      <h2 id="topics-title" data-i18n="landingTopics">Explore LentoTech</h2>
+      <div class="editorial-topic-grid">
+        <a class="editorial-topic topic-products" href="products.html">
+          <img src="vials-illustrative.jpg" alt="" width="1400" height="700" loading="lazy" decoding="async">
+          <div class="editorial-topic-copy">
+            <h3 data-i18n="navProducts">Products</h3>
+            <p data-i18n="landingProducts">Browse APIs and intermediates by molecule, CAS number or category.</p>
+          </div>
+          <span class="editorial-topic-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="editorial-topic topic-services" href="services.html">
+          <img src="lab-illustrative.jpg" alt="" width="1400" height="933" loading="lazy" decoding="async">
+          <div class="editorial-topic-copy">
+            <h3 data-i18n="navCapabilities">Sourcing &amp; CDMO</h3>
+            <p data-i18n="landingServices">Discuss sourcing, manufacturing capabilities and technology transfer.</p>
+          </div>
+          <span class="editorial-topic-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="editorial-topic topic-insights" href="news.html">
+          <div class="editorial-topic-copy">
+            <h3 data-i18n="newsNav">News &amp; insights</h3>
+            <p data-i18n="landingInsights">Follow regulatory developments and pharmaceutical industry analysis.</p>
+          </div>
+          <span class="editorial-topic-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
     </section>
   </main>
   <footer class="portal-footer"><span>© <span id="year"></span> LentoTech</span><span data-i18n="footerNote">Information is for business discussion and does not constitute regulatory or medical advice.</span></footer>

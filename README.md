@@ -30,7 +30,7 @@ Production website for lentotech.com, built by `node build.mjs` on Cloudflare Pa
 
 - `design.css` is the shared visual system loaded after the existing `styles.css`.
 - The website pages share Products, Sourcing & CDMO, News & insights, About and Contact navigation.
-- The landing page contains the company introduction and quick catalog matching in one hero. Featured entries live in Products, technologies in Services, published news in News, the company profile and publication counts in About, and the full inquiry form in Contact.
+- The landing page contains the company introduction, quick catalog matching and three illustrated topic previews. Featured entries live in Products, technologies in Services, published news in News, the company profile and publication counts in About, and the full inquiry form in Contact.
 - `catalog.js` accepts `?q=` for product name/CAS searches; preserve the 72 existing catalog entries and IDs.
 - Images are existing illustrative assets, not evidence of LentoTech-owned manufacturing facilities.
 - The native form submits to private feedback storage after verification when configured; email fallback prepares an email without sending it automatically.

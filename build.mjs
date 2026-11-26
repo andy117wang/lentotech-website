@@ -76,9 +76,9 @@ for(const file of ['index.html','news.html','products.html','services.html']){
   }
   if(file==='index.html'){
     const site=content.site||{},heroTitle=String(site.heroTitle||'').trim(),heroLead=String(site.heroLead||'').trim(),heroImage=site.heroImage?url(site.heroImage):'';
-    if(heroTitle)html=html.replace(/(<h1 id="portal-title" data-i18n="editorialTitle")>/, '$1 data-managed-english="'+esc(heroTitle)+'">').replace(/(<h1 id="portal-title" data-i18n="editorialTitle"[^>]*>)[\s\S]*?<\/h1>/,'$1'+esc(heroTitle)+'</h1>');
-    if(heroLead)html=html.replace(/(<p data-i18n="editorialLead")>/, '$1 data-managed-english="'+esc(heroLead)+'">').replace(/(<p data-i18n="editorialLead"[^>]*>)[\s\S]*?<\/p>/,'$1'+esc(heroLead)+'</p>');
-    if(heroImage)html=html.replace('src="lab-illustrative.jpg" alt=""','src="'+esc(heroImage)+'" alt=""');
+    if(heroTitle)html=html.replace(/(<h1 id="portal-title" data-i18n="editorialTitle")>[^]*?<\/h1>/,(_,open)=>open+' data-managed-english="'+esc(heroTitle)+'">'+esc(heroTitle)+'</h1>');
+    if(heroLead)html=html.replace(/(<p data-i18n="editorialLead")>[^]*?<\/p>/,(_,open)=>open+' data-managed-english="'+esc(heroLead)+'">'+esc(heroLead)+'</p>');
+    if(heroImage)html=html.replace(/(<img data-hero-image src=")[^"]*(")/,(_,open,close)=>open+esc(heroImage)+close);
     html=html.replace('<script type="application/json" id="sourcing-index">[]</script>',()=>'<script type="application/json" id="sourcing-index">'+sourcingJSON+'</script>');
   }
   await writeFile(join(dist,file),html);

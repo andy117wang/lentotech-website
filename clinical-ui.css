@@ -99,6 +99,7 @@ html[data-site-theme] {
 
 body { background: var(--ui-canvas); color: var(--ui-ink); font: var(--ui-body)/var(--ui-reading) var(--ui-font); }
 main :is(h1, h2, h3, h4) { overflow-wrap: anywhere; }
+main .hero h1 em { color: inherit; font: inherit; }
 .editorial-intro h1, .catalog-main > h1, .editorial-page h1, .product-detail h1,
 .news-article h1, .hero h1, .inquiry .inquiry-copy h1 {
   color: var(--ui-ink);
@@ -156,6 +157,7 @@ main :is(h1, h2, h3, h4) { overflow-wrap: anywhere; }
 }
 .utility-bar { padding-inline: var(--ui-inset); color: var(--ui-white); background: var(--ui-brand); font-size: var(--ui-meta); }
 .utility-bar a, .utility-bar a:visited { color: var(--ui-white); }
+.skip-link:not(:focus) { top: 0; transform: translateY(-100%); }
 :is(.site-header, .catalog-header, .header, footer) .brand { min-height: var(--ui-target); color: var(--ui-ink); }
 .brand .brand-mark { border-radius: var(--ui-r1); }
 .section, .news-home, .catalog-main, .editorial-page, .technical-feature, .managed-inner,
@@ -321,7 +323,14 @@ input::placeholder, textarea::placeholder, .inquiry form input::placeholder,
   background: var(--ui-brand);
   font-size: var(--ui-meta);
 }
-.hero-search-controls { display: grid; gap: var(--ui-s2); }
+.hero-search-controls {
+  display: grid;
+  gap: var(--ui-s2);
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+.hero-search-controls:focus-within { outline: 0; }
 .hero-search-controls button { margin: 0; }
 .site-summary h2, .hero-search-panel h2, .sourcing-evidence h2 {
   color: var(--ui-ink);
@@ -424,6 +433,7 @@ input::placeholder, textarea::placeholder, .inquiry form input::placeholder,
   color: var(--ui-ink);
 }
 .article-lead { color: var(--ui-copy); font-size: var(--ui-lead); }
+.news-article .article-body { font-size: var(--ui-body); line-height: var(--ui-reading); }
 :is(.article-body, .detail-panel) a:not(.button) { color: var(--ui-brand); text-decoration: underline; text-underline-offset: var(--ui-s1); }
 :is(.hero figure, .section-photo, .catalog-banner > img, .managed-list img) { border-radius: var(--ui-r2); }
 :is(.hero figure img, .section-photo img, .catalog-banner > img, .managed-list img) {

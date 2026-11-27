@@ -67,3 +67,25 @@ test('published product and news terms are visible and discoverable while offlin
   const page=await readFile(join(dir,'dist/catalog-published.html'),'utf8'),list=await readFile(join(dir,'dist/products.html'),'utf8'),full=await readFile(join(dir,'dist/news-full.html'),'utf8'),brief=await readFile(join(dir,'dist/news-brief.html'),'utf8'),map=await readFile(join(dir,'dist/sitemap.xml'),'utf8');
   assert.match(page,/<title>Example molecule \| CAS 123-45-6 \| API \| LentoTech<\/title>/);assert.match(page,/示例别名/);assert.match(page,/synonym one/);assert.match(page,/&lt;script&gt;/);assert.doesNotMatch(page,/<script>alert/);assert.match(list,/data-search="[^"]*特殊词/);assert.match(full,/Unique article content/);assert.match(full,/CMC · process transfer/);assert.match(brief,/market intelligence/);assert.doesNotMatch(brief,/noindex/);assert.match(map,/catalog-published/);assert.match(map,/news-full/);assert.match(map,/news-brief/);assert.doesNotMatch(map,/catalog-offline/);
 });
+
+test('daily industry briefs expose source links and dates in crawlable canonical pages',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'lento-industry-brief-'));
+  for(const f of ['build.mjs','news-content.js','index.html','news.html','products.html','services.html','manage.html','sitemap.xml'])
+    await copyFile(new URL('../'+f,import.meta.url),join(dir,f));
+  const source='https://english.nmpa.gov.cn/2026-11/17/c_1228996.htm';
+  const slug='news-industry-brief-2026-11-27';
+  const canonical='https://lentotech.com/'+slug;
+  await writeFile(join(dir,'content.json'),JSON.stringify({products:[],news:[]}));
+  await writeFile(join(dir,'industry-news.json'),JSON.stringify([{date:'2026-11-27',stories:[
+    {date:'2026-11-17',source:'NMPA',title:'Framework & <review>',url:source}
+  ]}]));
+  await promisify(execFile)(process.execPath,[join(dir,'build.mjs')]);
+  const read=f=>readFile(join(dir,'dist',f),'utf8');
+  assert.ok((await read('news.html')).includes('href="/'+slug+'"'));
+  const page=await read(slug+'.html');
+  assert.ok(page.includes('rel="canonical" href="'+canonical+'"'));
+  assert.ok(page.includes('href="'+source+'"'));
+  assert.match(page,/Framework &amp; &lt;review&gt;/);
+  assert.match(page,/<time datetime="2026-11-17">/);
+  assert.ok((await read('sitemap.xml')).includes('<loc>'+canonical+'</loc>'));
+});

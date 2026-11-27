@@ -12,11 +12,12 @@ Product listings are informational and do not establish current inventory, manuf
 
 ## Core pages
 
-- [LentoTech homepage](https://lentotech.com/): Company overview, featured products, technology capabilities and pharmaceutical intelligence.
+- [LentoTech homepage](https://lentotech.com/): Company overview, product quick search and links to the main sections.
 - [Product catalog](https://lentotech.com/products): Search pharmaceutical APIs, intermediates and other listed products by name, CAS number or molecular formula.
 - [Sourcing, trade and CDMO services](https://lentotech.com/services): Pharmaceutical product sourcing, international trade, formulation, process development and manufacturing partner discussions.
 - [CDMO and API manufacturing guide](https://lentotech.com/cdmo-guide): Manufacturing partner evaluation, process knowledge, quality systems, scale-up and technology transfer considerations.
 - [Pharmaceutical news and insights](https://lentotech.com/news): Industry developments, regulatory updates, commercial analysis and technical perspectives.
+- [About LentoTech](https://lentotech.com/about): Company profile and publication counts for the public catalog and insights.
 - [Contact and business inquiries](https://lentotech.com/contact): Discuss a product sourcing requirement, CDMO project, technical specifications, target market or company profile.
 
 ## Selected product profiles

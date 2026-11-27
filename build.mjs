@@ -89,6 +89,7 @@ const admin=await readFile(adminPath,'utf8');
 await writeFile(adminPath,admin.replace('</head>',`<meta name="content-branch" content="${esc(process.env.CF_PAGES_BRANCH||'codex/unified-website')}"></head>`));
 // Public metadata is derived only from the existing public catalog/content. No invented prices, ratings or approvals.
 const origin='https://lentotech.com';
+const isPublicPage=file=>file.endsWith('.html')&&file!=='404.html'&&!file.startsWith('manage');
 const canonical=file=>origin+(file==='index.html'?'/':'/'+file.replace(/\.html$/,''));
 const org={'@type':'Organization','@id':origin+'/#organization',name:'LentoTech',url:origin+'/',email:'info@lentotech.com',description:'Pharmaceutical product sourcing, industry intelligence and CDMO opportunity matching.'};
 const webSite={'@type':'WebSite','@id':origin+'/#website',name:'LentoTech',url:origin+'/',publisher:{'@id':org['@id']},inLanguage:'en'};
@@ -114,14 +115,25 @@ function enhancePublicPage(html,file){
   const crumbs=[{name:'Home',item:origin+'/'}];
   if(product)crumbs.push({name:'Products',item:origin+'/products'});else if(article)crumbs.push({name:'News & insights',item:origin+'/news'});
   if(file!=='index.html')crumbs.push({name:displayName,item:pageUrl});
-  const graph=[org,webSite,{'@type':file==='products.html'||file==='news.html'?'CollectionPage':'WebPage','@id':pageUrl+'#page',url:pageUrl,name:title,description,isPartOf:{'@id':webSite['@id']},inLanguage:'en'}];
+  const collection=file==='products.html'||file==='news.html';
+  const pageType=collection?'CollectionPage':file==='about.html'?'AboutPage':file==='contact.html'?'ContactPage':'WebPage';
+  const page={'@type':pageType,'@id':pageUrl+'#page',url:pageUrl,name:title,description,isPartOf:{'@id':webSite['@id']},inLanguage:'en'};
+  const entity=product?'product':article?'article':collection?'list':null;
+  if(entity)page.mainEntity={'@id':pageUrl+'#'+entity};
+  if(file==='index.html'||file==='about.html'||file==='contact.html')page.about={'@id':org['@id']};
+  if(crumbs.length>1)page.breadcrumb={'@id':pageUrl+'#breadcrumbs'};
+  const graph=[org,webSite,page];
   if(crumbs.length>1)graph.push({'@type':'BreadcrumbList','@id':pageUrl+'#breadcrumbs',itemListElement:crumbs.map((x,i)=>({'@type':'ListItem',position:i+1,...x}))});
   if(product){const p={'@type':'Product','@id':pageUrl+'#product',url:pageUrl,name:product.name,description:cleanText(product.description||description),category:product.category||'Product'};if(product.image&&asAbsolute(product.image))p.image=asAbsolute(product.image);if(product.cas)p.additionalProperty=[{'@type':'PropertyValue',name:'CAS number',value:product.cas}];graph.push(p);}
-  if(article){const a={'@type':'Article','@id':pageUrl+'#article',headline:article.title,description:cleanText(article.summary||article.title),mainEntityOfPage:pageUrl,publisher:{'@id':org['@id']},inLanguage:'en'};if(/^\d{4}-\d{2}-\d{2}$/.test(article.date||''))a.datePublished=article.date;if(article.url&&asAbsolute(article.url))a.citation=asAbsolute(article.url);graph.push(a);}
+  if(article){const a={'@type':'Article','@id':pageUrl+'#article',headline:article.title,description:cleanText(article.summary||article.title),mainEntityOfPage:{'@id':page['@id']},publisher:{'@id':org['@id']},inLanguage:'en'};if(/^\d{4}-\d{2}-\d{2}$/.test(article.date||''))a.datePublished=article.date;if(article.url&&asAbsolute(article.url))a.citation=asAbsolute(article.url);graph.push(a);}
   if(file==='products.html'||file==='news.html'){const items=file==='products.html'?activeProducts.map(x=>({name:x.name,url:canonical(productPath(x))})):newsItems.map(x=>({name:x.title,url:canonical(newsPath(x))}));graph.push({'@type':'ItemList','@id':pageUrl+'#list',itemListElement:items.map((item,i)=>({'@type':'ListItem',position:i+1,item}))});}
   html=html.replace(/<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/gi,'').replace('</head>',`<script type="application/ld+json">${jsonScript({'@context':'https://schema.org','@graph':graph})}</script></head>`);
   html=setMeta(html,'property','og:type',article?'article':'website');html=setMeta(html,'property','og:title',title);html=setMeta(html,'property','og:description',description);html=setMeta(html,'property','og:url',pageUrl);html=setMeta(html,'property','og:site_name','LentoTech');
-  const socialImage=product?.image&&asAbsolute(product.image)||origin+'/'+(product?'vials-illustrative.jpg':'lab-illustrative.jpg');html=setMeta(html,'property','og:image',socialImage);html=setMeta(html,'property','og:image:alt',product?.image?product.name:'Illustrative pharmaceutical '+(product?'vials':'laboratory'));html=setMeta(html,'name','twitter:card','summary_large_image');
+  const heroImage=file==='index.html'?html.match(/<img data-hero-image src="([^"]+)"/)?.[1]:'';
+  const socialImage=asAbsolute(decodeMeta(heroImage||product?.image||''))||origin+'/'+(product?'vials-illustrative.jpg':'lab-illustrative.jpg');
+  html=setMeta(html,'property','og:image',socialImage);
+  html=setMeta(html,'property','og:image:alt',product?.image?product.name:'Illustrative pharmaceutical '+(product||heroImage?'vials':'laboratory'));
+  html=setMeta(html,'name','twitter:card','summary_large_image');
   html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"><link rel="stylesheet" href="clinical-ui.css"><link rel="stylesheet" href="topic-layout.css"></head>');
   const current=product?'products.html':article?'news.html':file;
   const navItems=[['products.html','navProducts','Products'],['services.html','navCapabilities','Sourcing &amp; CDMO'],['news.html','newsNav','News &amp; insights'],['about.html','aboutNav','About'],['contact.html','navContact','Contact']];
@@ -143,21 +155,21 @@ for(const item of await readdir(dist,{withFileTypes:true})){
   const file=join(dist,item.name);let html=await readFile(file,'utf8');
   const theme=content.site?.theme==='teal'?'teal':'navy';
   html=html.replace('<html lang="en">','<html lang="en" data-site-theme="'+theme+'">');
-  if(!html.includes('site-refresh.css')&&!item.name.startsWith('manage'))html=html.replace('</head>','<link rel="stylesheet" href="site-refresh.css"><script defer src="journey.js"></script></head>');
-  if(!item.name.startsWith('manage'))html=html.replace('</head>','<link rel="stylesheet" href="assistant-widget.css"><script defer src="assistant-widget.js"></script><script defer src="action-icons.js"></script></head>');
-  if(!item.name.startsWith('manage'))html=enhancePublicPage(html,item.name);
+  if(!html.includes('site-refresh.css')&&isPublicPage(item.name))html=html.replace('</head>','<link rel="stylesheet" href="site-refresh.css"><script defer src="journey.js"></script></head>');
+  if(isPublicPage(item.name))html=html.replace('</head>','<link rel="stylesheet" href="assistant-widget.css"><script defer src="assistant-widget.js"></script><script defer src="action-icons.js"></script></head>');
+  if(isPublicPage(item.name))html=enhancePublicPage(html,item.name);
   for(const asset of new Set([...html.matchAll(/(?:href|src)="([a-z0-9-]+\.(?:css|js))"/g)].map(x=>x[1]))){
     const version=await readFile(join(root,asset)).then(bytes=>createHash('sha256').update(bytes).digest('hex').slice(0,12)).catch(()=>null);
     if(version)html=html.replaceAll('="'+asset+'"','="'+asset+'?v='+version+'"');
   }
   html=html.replaceAll('https://www.lentotech.com/','https://lentotech.com/');
-  html=html.replace(/href="index\.html(?=["#?])/g,'href="/');
-  html=html.replace(/href="([a-z0-9-]+)\.html(?=["#?])/g,'href="/$1');
+  html=html.replace(/(href|action)="index\.html(?=["#?])/g,'$1="/');
+  html=html.replace(/(href|action)="([a-z0-9-]+)\.html(?=["#?])/g,'$1="/$2');
   html=html.replace(/(https:\/\/lentotech\.com\/[a-z0-9-]+)\.html(?=["?#])/g,'$1');
   await writeFile(file,html);
 }
 const sitemapPath=join(dist,'sitemap.xml');
-const publicFiles=(await readdir(dist,{withFileTypes:true})).filter(x=>x.isFile()&&x.name.endsWith('.html')&&!x.name.startsWith('manage')).map(x=>x.name);
+const publicFiles=(await readdir(dist,{withFileTypes:true})).filter(x=>x.isFile()&&isPublicPage(x.name)).map(x=>x.name);
 const sitemapUrls=[...new Set(publicFiles.map(canonical))].sort();
 await writeFile(sitemapPath,'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+sitemapUrls.map(v=>'  <url><loc>'+esc(v)+'</loc></url>').join('\n')+'\n</urlset>\n');
 const robotsPath=join(dist,'robots.txt');try{const robots=await readFile(robotsPath,'utf8');await writeFile(robotsPath,robots.replaceAll('https://www.lentotech.com/','https://lentotech.com/'))}catch(e){if(e.code!=='ENOENT')throw e}

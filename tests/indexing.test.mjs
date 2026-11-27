@@ -9,3 +9,27 @@ test('preview is noindex while the public domain can be indexed',async()=>{
   assert.equal((await run('https://lentotech.com/')).headers.get('X-Robots-Tag'),null);
   assert.equal((await run('https://lentotech.com/manage')).headers.get('X-Robots-Tag'),'noindex, nofollow');
 });
+
+test('www sends readers to the same canonical path and query in one response',async()=>{
+  for(const method of ['GET','HEAD']){
+    const response=await onRequest({
+      request:new Request('https://www.lentotech.com/contact?source=news-alpha', {method}),
+      next:async()=>assert.fail('a duplicate page must not be served'),
+    });
+    assert.equal(response.status,301);
+    assert.equal(response.headers.get('location'),'https://lentotech.com/contact?source=news-alpha');
+  }
+  const post=await onRequest({
+    request:new Request('https://www.lentotech.com/api/feedback',{method:'POST'}),
+    next:async()=>new Response(null,{status:202}),
+  });
+  assert.equal(post.status,202);
+});
+test('a missing page retains its 404 status and explicit noindex',async()=>{
+  const response=await onRequest({
+    request:new Request('https://lentotech.com/missing'),
+    next:async()=>new Response('Missing',{status:404}),
+  });
+  assert.equal(response.status,404);
+  assert.equal(response.headers.get('x-robots-tag'),'noindex, nofollow');
+});

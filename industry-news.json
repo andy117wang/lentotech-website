@@ -1,5 +1,58 @@
 [
   {
+    "date": "2026-11-28",
+    "stories": [
+      {
+        "source": "FDA",
+        "title": "Untitled Letters",
+        "url": "https://www.fda.gov/drugs/warning-letters-and-notice-violation-letters-pharmaceutical-companies/untitled-letters",
+        "date": "2026-11-27"
+      },
+      {
+        "source": "FDA",
+        "title": "GDUFA II Enhanced Accountability & Reporting",
+        "url": "https://www.fda.gov/industry/generic-drug-user-fee-amendments/gdufa-ii-enhanced-accountability-reporting",
+        "date": "2026-11-27"
+      },
+      {
+        "source": "EMA",
+        "title": "Executive Director speech at European media workshop on vaccines",
+        "url": "https://www.ema.europa.eu/en/news/executive-director-speech-european-media-workshop-vaccines",
+        "date": "2026-11-27"
+      },
+      {
+        "source": "EMA",
+        "title": "Meeting highlights from the Pharmacovigilance Risk Assessment Committee (PRAC) 23-26 November 2026",
+        "url": "https://www.ema.europa.eu/en/news/meeting-highlights-pharmacovigilance-risk-assessment-committee-prac-23-26-november-2026",
+        "date": "2026-11-27"
+      },
+      {
+        "source": "NMPA",
+        "title": "Huang Guo meets acting director of WHO’s Regulation and Prequalification Department",
+        "url": "https://english.nmpa.gov.cn/2026-11/10/c_1227095.htm",
+        "date": "2026-11-10"
+      },
+      {
+        "source": "NMPA",
+        "title": "Lei Ping meets with deputy head of Russian Federal Service for Surveillance in Healthcare",
+        "url": "https://english.nmpa.gov.cn/2026-11/02/c_1224374.htm",
+        "date": "2026-11-02"
+      },
+      {
+        "source": "BioSpace",
+        "title": "‘Buckle up’: Opdivo biosimilar settlement sets BMS up for make-or-break moment",
+        "url": "https://www.biospace.com/business/buckle-up-opdivo-biosimilar-settlement-sets-bms-up-for-make-or-break-moment",
+        "date": "2026-11-25"
+      },
+      {
+        "source": "BioSpace",
+        "title": "Alkem draws FDA warning letter over dissolution, complaint-handling lapses",
+        "url": "https://www.biospace.com/drug-delivery/alkem-draws-fda-warning-letter-over-dissolution-complaint-handling-lapses",
+        "date": "2026-11-25"
+      }
+    ]
+  },
+  {
     "date": "2026-11-27",
     "stories": [
       {

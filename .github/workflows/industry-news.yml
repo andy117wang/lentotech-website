@@ -1,0 +1,54 @@
+name: Publish daily industry brief
+
+on:
+  schedule:
+    # 09:23 and 16:43 in Asia/Shanghai. The second run can recover a missed edition.
+    - cron: '23 1 * * *'
+    - cron: '43 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lentotech-industry-brief-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: codex/unified-website
+      - name: Collect, verify and publish
+        run: |
+          set -euo pipefail
+          edition=$(TZ=Asia/Shanghai date +%F)
+          python3 scripts/update-industry-news.py --date "$edition"
+          if [[ -z "$(git status --porcelain -- industry-news.json)" ]]; then
+            exit 0
+          fi
+
+          node --test tests/*.test.mjs
+          node build.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- industry-news.json
+          git commit -m "Publish pharmaceutical industry brief for $edition"
+          git push origin HEAD:refs/heads/codex/unified-website
+
+          path="/news-industry-brief-$edition"
+          for attempt in {1..18}; do
+            if curl -fsS --max-time 15 "https://lentotech.com$path" -o "$RUNNER_TEMP/brief.html" &&
+               curl -fsS --max-time 15 "https://lentotech.com/sitemap.xml" -o "$RUNNER_TEMP/sitemap.xml" &&
+               grep -Fq "https://lentotech.com$path" "$RUNNER_TEMP/brief.html" &&
+               grep -Fq "<loc>https://lentotech.com$path</loc>" "$RUNNER_TEMP/sitemap.xml"; then
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "::error::The edition was committed, but the production page or sitemap did not update in time."
+          exit 1

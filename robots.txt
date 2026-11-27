@@ -1,3 +1,7 @@
 User-agent: *
-Allow: /
-Sitemap: https://www.lentotech.com/sitemap.xml
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Disallow: /api/
+
+Sitemap: https://lentotech.com/sitemap.xml

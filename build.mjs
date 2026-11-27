@@ -53,9 +53,18 @@ const digestItems=digestArchive.map(({date,stories})=>{
   return {id:'industry-brief-'+date,date,stories,title:'Pharma industry brief | '+date,
     category:'Industry brief',summary:'Drug regulation and pharmaceutical industry developments from '+new Intl.ListFormat('en').format(sources)+'.'};
 });
-const digestMarkup=stories=>'<h2>Source headlines</h2><ul>'+stories.map(item=>
-  `<li><a href="${esc(url(item.url))}" rel="noopener noreferrer">${esc(item.title)}</a> · ${esc(item.source)} · <time datetime="${esc(item.date)}">${esc(item.date)}</time></li>`
-).join('')+'</ul>';
+const newsDate=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+function newsTime(date){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date||'')||!Number.isFinite(Date.parse(date)))return '';
+  return `<time datetime="${esc(date)}">${newsDate.format(new Date(date))}</time>`;
+}
+const digestMarkup=stories=>Object.keys(industrySources).map(name=>{
+  const items=stories.filter(item=>item.source===name);
+  if(!items.length)return '';
+  return `<section class="digest-source" aria-label="${name}"><h2>${name}</h2><ul>${items.map(item=>
+    `<li>${newsTime(item.date)}<a href="${esc(url(item.url))}" rel="noopener noreferrer">${esc(item.title)}</a></li>`
+  ).join('')}</ul></section>`;
+}).join('');
 const newsItems=[...(content.news||[]),...digestItems].filter(x=>x.title).sort((a,b)=>(b.pinned==='yes')-(a.pinned==='yes')||String(b.date||'').localeCompare(String(a.date||'')));
 const sourcingIndex=activeProducts.map(x=>({name:String(x.name||''),cas:String(x.cas||''),alias:String(x.alias||''),formula:String(x.formula||x.molecularFormula||''),category:String(x.category||'Other'),path:'/'+productPath(x).replace(/\.html$/,''),inquiry:'/contact?product='+encodeURIComponent(x.name)+(x.tradeCode?'&trade_code='+encodeURIComponent(x.tradeCode):''),specification:!!String(x.specification||'').trim(),documentation:!!String(x.documentation||'').trim()}));
 const sourcingJSON=JSON.stringify(sourcingIndex).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
@@ -63,8 +72,34 @@ const newsPath=x=>'news-'+String(x.id||createHash('sha256').update(x.title).dige
 const selectedFeatured=activeProducts.filter(x=>x.featured==='yes');
 const featuredProducts=[...selectedFeatured,...activeProducts.filter(x=>x.featured!=='yes')].slice(0,6);
 const featuredMarkup=featuredProducts.map(x=>`<a href="${esc(productPath(x))}"><span class="featured-label" data-medical-icon="tube">${esc(x.category||'Product')}</span><strong>${esc(x.name)}</strong><span>${x.cas?'CAS '+esc(x.cas):'Details on request'}</span><span class="featured-action">View product ↗</span></a>`).join('');
-const renderArticles=items=>items.map(x=>{const link=newsPath(x);const related=x.related?`<a href="products.html?q=${encodeURIComponent(x.related)}&amp;source=${encodeURIComponent(newsPath(x).replace(/\.html$/,''))}">Explore related products ↗</a>`:'';return `<article><div class="story-meta">${esc([x.category,x.date].filter(Boolean).join(' · '))}</div><h3>${link?`<a href="${esc(link)}">${esc(x.title)}</a>`:esc(x.title)}</h3><p>${esc(x.summary)}</p><a class="story-link" href="${esc(link)}">${x.stories?'Read brief':'Read insight'} ↗</a>${related}</article>`}).join('');
-for(const x of newsItems){const file=newsPath(x),source=x.url?url(x.url):'',ref=encodeURIComponent(file.replace(/\.html$/,'')),related=x.related?`<a class="button" href="products.html?q=${encodeURIComponent(x.related)}&amp;source=${ref}">Find ${esc(x.related)} in the catalog ↗</a>`:`<a class="button" href="products.html?source=${ref}">Search the product catalog ↗</a>`;const page=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(x.title)} | LentoTech</title><meta name="description" content="${esc(cleanText(x.summary||x.body||x.title).slice(0,200))}"><link rel="canonical" href="https://lentotech.com/${esc(file.replace(/\.html$/, ''))}"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="design.css"><link rel="stylesheet" href="news-article.css"><link rel="stylesheet" href="site-refresh.css"><script defer src="journey.js"></script><link rel="icon" href="favicon.svg"></head><body><header class="catalog-header"><a class="brand" href="index.html"><span class="brand-mark">L</span><span>Lento<span class="brand-light">Tech</span></span></a><nav aria-label="Primary navigation"><a href="news.html">News &amp; insights</a><a href="products.html">Products</a><a href="services.html">CDMO services</a><a href="contact.html">Contact</a></nav></header><main id="main" class="news-article"><nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><a href="news.html">News &amp; insights</a><span>/</span><span>Article</span></nav><div class="story-meta">${esc(x.category||'News')}${x.date?` · <time datetime="${esc(x.date)}">${esc(x.date)}</time>`:''}</div><h1>${esc(x.title)}</h1>${x.summary?`<p class="article-lead">${esc(x.summary)}</p>`:''}<article class="article-body">${x.stories?digestMarkup(x.stories):NewsContent.render(x.body)}${termsMarkup(x.keywords)}</article><div class="article-next">${source?`<a href="${esc(source)}" rel="noopener noreferrer">Original source ↗</a>`:''}${related}<a href="contact.html?source=${ref}">Discuss sourcing or a CDMO project ↗</a></div></main><footer><a class="brand" href="index.html">LentoTech</a><span>Business inquiries: <a href="mailto:info@lentotech.com">info@lentotech.com</a></span></footer></body></html>`;await writeFile(join(dist,file),page)}
+function renderNewsroom(){
+  const briefs=newsItems.filter(item=>item.stories);
+  const [latest,...earlier]=briefs;
+  const insights=newsItems.filter(item=>!item.stories);
+  const count=item=>item.stories.length+' source '+(item.stories.length===1?'headline':'headlines');
+  const preview=latest?`<article class="latest-brief">
+    <div class="latest-brief-header"><div><p>Latest industry brief</p><h2><a href="${newsPath(latest)}">${newsTime(latest.date)}</a></h2></div><a class="brief-open" href="${newsPath(latest)}">Read all ${latest.stories.length} headlines <span aria-hidden="true">↗</span></a></div>
+    <ul class="brief-preview">${Object.keys(industrySources).map(name=>{
+      const story=latest.stories.find(item=>item.source===name);
+      return story?`<li><div><strong>${name}</strong>${newsTime(story.date)}</div><a href="${esc(url(story.url))}" rel="noopener noreferrer">${esc(story.title)}</a></li>`:'';
+    }).join('')}</ul>
+  </article>`:'';
+  const archive=earlier.length?`<div class="brief-archive"><h3>Previous editions</h3><ul>${earlier.map(item=>
+    `<li><a href="${newsPath(item)}">${newsTime(item.date)}<span>${count(item)}</span></a></li>`
+  ).join('')}</ul></div>`:'';
+  return `<div class="newsroom-layout"><div class="newsroom-stories">
+    <section id="industry-briefs" aria-label="Industry briefs">${preview||'<h2>Industry briefs</h2><p>No editions published yet.</p>'}${archive}</section>
+    <section id="insights"><h2>LentoTech insights</h2><div class="insight-list">${insights.map(item=>`<article>
+      <div class="news-entry-meta">${item.category?`<span>${esc(item.category)}</span>`:''}${newsTime(item.date)}</div>
+      <h3><a href="${newsPath(item)}">${esc(item.title)}</a></h3>
+      ${item.summary?`<p>${esc(item.summary)}</p>`:''}
+      ${item.related?`<a class="insight-related" href="products.html?q=${encodeURIComponent(item.related)}&amp;source=${encodeURIComponent(newsPath(item).replace(/\.html$/,''))}">Explore related products</a>`:''}
+    </article>`).join('')}</div></section>
+    </div><aside class="newsroom-sources" id="news-sources"><h2>News sources</h2><ul>${Object.entries(industrySources).map(([name,href])=>
+      `<li><a href="${href}" rel="noopener noreferrer"><strong>${name}</strong><span aria-hidden="true">↗</span></a><p>${{FDA:'US drug regulation',EMA:'EU medicines regulation',NMPA:'China medicines regulation',BioSpace:'Biopharma industry news'}[name]}</p></li>`
+    ).join('')}</ul></aside></div>`;
+}
+for(const x of newsItems){const file=newsPath(x),source=x.url?url(x.url):'',ref=encodeURIComponent(file.replace(/\.html$/,'')),related=x.related?`<a class="button" href="products.html?q=${encodeURIComponent(x.related)}&amp;source=${ref}">Find ${esc(x.related)} in the catalog ↗</a>`:`<a class="button" href="products.html?source=${ref}">Search the product catalog ↗</a>`;const page=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(x.title)} | LentoTech</title><meta name="description" content="${esc(cleanText(x.summary||x.body||x.title).slice(0,200))}"><link rel="canonical" href="https://lentotech.com/${esc(file.replace(/\.html$/, ''))}"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="design.css"><link rel="stylesheet" href="news-article.css"><link rel="stylesheet" href="site-refresh.css"><script defer src="journey.js"></script><link rel="icon" href="favicon.svg"></head><body><header class="catalog-header"><a class="brand" href="index.html"><span class="brand-mark">L</span><span>Lento<span class="brand-light">Tech</span></span></a><nav aria-label="Primary navigation"><a href="news.html">News &amp; insights</a><a href="products.html">Products</a><a href="services.html">CDMO services</a><a href="contact.html">Contact</a></nav></header><main id="main" class="news-article${x.stories?' digest-article':''}"><nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><a href="news.html">News &amp; insights</a><span>/</span><span>Article</span></nav><div class="story-meta">${x.stories?newsTime(x.date):esc(x.category||'News')+(x.date?` · <time datetime="${esc(x.date)}">${esc(x.date)}</time>`:'')}</div><h1>${x.stories?'Pharma industry brief':esc(x.title)}</h1>${x.summary?`<p class="article-lead">${esc(x.summary)}</p>`:''}<article class="article-body">${x.stories?digestMarkup(x.stories):NewsContent.render(x.body)}${termsMarkup(x.keywords)}</article><div class="article-next">${source?`<a href="${esc(source)}" rel="noopener noreferrer">Original source ↗</a>`:''}${related}<a href="contact.html?source=${ref}">Discuss sourcing or a CDMO project ↗</a></div></main><footer><a class="brand" href="index.html">LentoTech</a><span>Business inquiries: <a href="mailto:info@lentotech.com">info@lentotech.com</a></span></footer></body></html>`;await writeFile(join(dist,file),page)}
 
 const products=activeProducts.map(x=>{const image=x.image?url(x.image):'';const detail=productPath(x);const id=/^product-\d+$/.test(x.id||'')?x.id:'';const search=[x.name,x.alias,x.cas,x.formula,x.molecularFormula,x.description,x.category,x.specification,x.documentation,x.packaging,x.availability,x.keywords,x.therapeuticArea,x.developmentStage,x.search].join(' ').toLocaleLowerCase();return `<article class="catalog-card" ${id?`id="${esc(id)}"`:''} data-kind="${esc(x.category||'Other')}" data-area="${esc(x.therapeuticArea||'')}" data-stage="${esc(x.developmentStage||'')}" data-search="${esc(search)}">${image?`<img src="${esc(image)}" alt="${esc(x.name)}" loading="lazy" style="width:100%;max-height:180px;object-fit:cover">`:''}<span class="kind" data-medical-icon="tube">${esc(x.category||'Product')}</span><h2><a href="${esc(detail)}">${esc(x.name)}</a></h2>${x.alias?`<p class="other-name">${esc(x.alias)}</p>`:''}${x.cas?`<p class="cas"><strong>CAS</strong> ${esc(x.cas)}</p>`:''}${x.specification?`<p>Specification / purity: ${esc(x.specification)}</p>`:''}${x.therapeuticArea?`<p>${esc(x.therapeuticArea)}</p>`:''}<p>${esc(x.description)}</p><div class="catalog-evidence"><span class="evidence-tag ${String(x.specification||'').trim()?'listed':'request'}" data-i18n="${String(x.specification||'').trim()?'specListed':'specRequest'}">${String(x.specification||'').trim()?'Specification listed':'Specification on request'}</span><span class="evidence-tag ${String(x.documentation||'').trim()?'listed':'request'}" data-i18n="${String(x.documentation||'').trim()?'docsListed':'docsRequest'}">${String(x.documentation||'').trim()?'Documentation listed':'Documentation on request'}</span></div><div class="card-actions"><a class="inquire" href="${esc(inquiryHref(x))}">Request information</a><a class="detail-action" href="${esc(detail)}">Product details</a></div></article>`}).join('');
 // Stable product slugs and existing data are retained. The page presents verified fields and a clear inquiry path.
@@ -81,11 +116,7 @@ const moduleSection=(items,heading)=>{const entries=(Array.isArray(items)?items:
 for(const file of ['index.html','news.html','products.html','services.html']){
   let html=await readFile(join(dist,file),'utf8');
   html=html.replace('<script defer src="content.js"></script>','');
-  if(file==='news.html'){
-    const sources=Object.entries(industrySources).map(([name,href])=>`<li><a href="${href}" rel="noopener noreferrer">${name}</a></li>`).join('');
-    html=html.replace('<div class="news-list">','<div class="news-list">'+renderArticles(newsItems))
-      .replace('<aside class="news-aside">',`<aside class="news-aside"><h2>News sources</h2><ul>${sources}</ul>`);
-  }
+  if(file==='news.html')html=html.replace('<!-- newsroom-content -->',renderNewsroom());
   if(file==='services.html'){
     html=html.replace('<div data-business-modules></div>',moduleSection(content.business,'Business areas'));
     html=html.replace('<div data-capability-modules></div>',moduleSection(content.capabilities,'Our capabilities'));
@@ -155,6 +186,7 @@ function enhancePublicPage(html,file){
   html=setMeta(html,'property','og:image:alt',product?.image?product.name:'Illustrative pharmaceutical '+(product||heroImage?'vials':'laboratory'));
   html=setMeta(html,'name','twitter:card','summary_large_image');
   html=html.replace('</head>','<link rel="stylesheet" href="brand-2026.css"><link rel="stylesheet" href="sourcing-2026.css"><link rel="stylesheet" href="clinical-ui.css"><link rel="stylesheet" href="topic-layout.css"></head>');
+  if(file==='news.html'||article?.stories)html=html.replace('</head>','<link rel="stylesheet" href="newsroom.css"></head>');
   const current=product?'products.html':article?'news.html':file;
   const navItems=[['products.html','navProducts','Products'],['services.html','navCapabilities','Sourcing &amp; CDMO'],['news.html','newsNav','News &amp; insights'],['about.html','aboutNav','About'],['contact.html','navContact','Contact']];
   html=html.replace(/<header\b[^>]*>[\s\S]*?<\/header>/i,header=>{
